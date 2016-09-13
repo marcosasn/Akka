@@ -49,9 +49,15 @@ public class FutureActor extends UntypedActor {
 	@Override
 	public void onReceive(Object message) throws Throwable {
 		if (message instanceof String) {
-            log.info("Received String message: {}", message);
-            getSender().tell(message, getSelf());
-        } else{
+			try {
+			    String result = (String) message;
+			    log.info(result);
+			    getSender().tell(result, getSelf());
+			} catch (Exception e) {
+			    getSender().tell(new akka.actor.Status.Failure(e), getSelf());
+			    throw e;
+			}
+		} else{
         	unhandled(message);
         }
 	}
@@ -59,15 +65,15 @@ public class FutureActor extends UntypedActor {
 	public static void main(String args[]) {
 	
 		final ActorSystem system = ActorSystem.create("MySystem");
-		final ActorRef actorA = system.actorOf(Props.create(MyUntypedActor.class),"actorA");
-		final ActorRef actorB = system.actorOf(Props.create(MyUntypedActor.class),"actorB");
-		final ActorRef actorC = system.actorOf(Props.create(MyUntypedActor.class),"actorC");
+		final ActorRef actorA = system.actorOf(Props.create(FutureActor.class),"actorA");
+		final ActorRef actorB = system.actorOf(Props.create(FutureActor.class),"actorB");
+		final ActorRef actorC = system.actorOf(Props.create(FutureActor.class),"actorC");
 		
 		final Timeout t = new Timeout(Duration.create(5, TimeUnit.SECONDS));
 
 		final ArrayList<Future<Object>> futures = new ArrayList<Future<Object>>();
 		futures.add(ask(actorA, "request", 1000)); // using 1000ms timeout
-		futures.add(ask(actorB, "another request", 1000)); // using timeout from
+		futures.add(ask(actorB, "another request", t)); // using timeout from
 		// above
 	
 		final Future<Iterable<Object>> aggregate = Futures.sequence(futures,
@@ -88,5 +94,7 @@ public class FutureActor extends UntypedActor {
     	system.stop(actorB);
     	system.stop(actorC);
     	system.shutdown();*/
+		
+		
 	}
 }

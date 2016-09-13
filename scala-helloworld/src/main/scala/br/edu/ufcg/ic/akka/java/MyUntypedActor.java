@@ -2,9 +2,11 @@ package br.edu.ufcg.ic.akka.java;
 
 import java.util.concurrent.TimeUnit;
 
+import akka.actor.ActorKilledException;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Inbox;
+import akka.actor.Kill;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.Terminated;
@@ -61,7 +63,7 @@ public class MyUntypedActor extends UntypedActor {
 
     	try {
     	    assert inbox.receive(Duration.create(1, TimeUnit.SECONDS)).equals("hello");
-    	    System.out.println(inbox.receive(Duration.create(1, TimeUnit.SECONDS)).equals("hello"));
+    	    System.out.println("try 1: " + inbox.receive(Duration.create(1, TimeUnit.SECONDS)).equals("hello"));
     	} catch (java.util.concurrent.TimeoutException e) {
     	    // timeout
     	}
@@ -73,20 +75,21 @@ public class MyUntypedActor extends UntypedActor {
 
     	try {
     	    assert inbox2.receive(Duration.create(1, TimeUnit.SECONDS)) instanceof Terminated;
-    	    System.out.println(inbox2.receive(Duration.create(10, TimeUnit.SECONDS)) instanceof Terminated);
+    	    System.out.println(inbox2.receive(Duration.create(1, TimeUnit.SECONDS)) instanceof Terminated);
     	} catch (java.util.concurrent.TimeoutException e) {
     	    System.out.println("entrou aqui....." + e.getMessage());
     	}
 
 		
 		// ActorSystem is a heavy object: create only one per application
-    	myActor.tell("Hi",ActorRef.noSender());    	
+    	//myActor.tell("Hi",ActorRef.noSender());   
+    	
+    	myActor.tell(Kill.getInstance(), ActorRef.noSender());
     		
-    	system.stop(myActor);
-    	system.stop(myActor2);
+    	/*system.stop(myActor2);
     	system.stop(target);
     	system.stop(target2);
-    	system.shutdown();
+    	system.shutdown();*/
     }
 }
 
