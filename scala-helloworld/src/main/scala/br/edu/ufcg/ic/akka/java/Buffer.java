@@ -11,8 +11,9 @@ import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 
 public class Buffer extends UntypedActor{
-	LoggingAdapter log = Logging.getLogger(getContext().system(), this);
+	LoggingAdapter log;
 	private List<Integer> numeros;
+	private static Integer tamanho;
 	
 	static public class Input {
         private final Integer numero;
@@ -30,12 +31,12 @@ public class Buffer extends UntypedActor{
         public Output() {}
     }
 	
-	static public class IsFull {    
-        public IsFull() {}
+	static public class Full {    
+        public Full() {}
     }
 	
-	static public class IsEmpty {    
-        public IsEmpty() {}
+	static public class Empty {    
+        public Empty() {}
     }
 	
 	public static Props props() {
@@ -44,35 +45,35 @@ public class Buffer extends UntypedActor{
 
             @Override
             public Buffer create() throws Exception {
-                return new Buffer();
+                return new Buffer(tamanho);
             }
 
         });
     }
 	
-	public Buffer() {
+	public Buffer(int tamanho) {
+		log = Logging.getLogger(getContext().system(), this);
     	this.numeros = new ArrayList<>();
+    	Buffer.tamanho = tamanho;
     }
 	
     public void onReceive(Object message) throws Exception {
         if (message instanceof Input) {
-            log.info("Received input message: {}", message);
-            if(numeros.size() < 5) {
+            if(numeros.size() < tamanho) {
             	numeros.add(((Input)message).getNumero());
-            	log.info("Add input : {}", ((Input)message).getNumero());
+            	log.info("Add int : {}", ((Input)message).getNumero());
             } else {
-            	getSender().tell(new IsFull(), getSelf());
-            	log.info("Buffer is full");
+            	getSender().tell(new Full(), getSelf());
+            	log.info("Buffer está cheio");
             }
         } else if (message instanceof Output){
-        	log.info("Received output message: {}", message);
             if(numeros.size() > 0) {
-            	int aux = numeros.get(numeros.size() - 1);
-            	log.info("Pop output");
+            	int aux = numeros.remove(numeros.size() - 1);
+            	log.info("Removido int : {}", + aux);
             	getSender().tell(aux, getSelf());
             } else {
-            	getSender().tell(new IsEmpty(), getSelf());
-            	log.info("Buffer is empty");
+            	getSender().tell(new Empty(), getSelf());
+            	log.info("Buffer está vazio");
             }
         } else unhandled(message);
     }
