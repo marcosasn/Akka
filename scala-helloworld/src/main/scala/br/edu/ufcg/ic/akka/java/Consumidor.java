@@ -48,6 +48,8 @@ public class Consumidor extends UntypedActor {
         }
         else if (message instanceof Empty) {
 			//TO DO
+			log.info("O buffer parece estar vazio...");
+
         } 
 		else if(message instanceof Integer){
 			log.info("Consumidor recebeu um int... " + (Integer)message);

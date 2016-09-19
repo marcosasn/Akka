@@ -61,19 +61,19 @@ public class Buffer extends UntypedActor{
         if (message instanceof Input) {
             if(numeros.size() < tamanho) {
             	numeros.add(((Input)message).getNumero());
-            	log.info("Add int : {}", ((Input)message).getNumero());
+            	log.info("Add int : " + ((Input)message).getNumero() + " from : " + getSender());
             } else {
             	getSender().tell(new Full(), getSelf());
-            	log.info("Buffer está cheio");
+            	//log.info("Buffer está cheio");
             }
         } else if (message instanceof Output){
             if(numeros.size() > 0) {
             	int aux = numeros.remove(numeros.size() - 1);
-            	log.info("Removido int : {}", + aux);
+            	log.info("Removido int : " + aux + " from : " + getSender());
             	getSender().tell(aux, getSelf());
             } else {
             	getSender().tell(new Empty(), getSelf());
-            	log.info("Buffer está vazio");
+            	//log.info("Buffer está vazio");
             }
         } else unhandled(message);
     }
