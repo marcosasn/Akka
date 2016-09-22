@@ -42,11 +42,6 @@ public class DemoActor extends UntypedActor{
 				log.info("Received String message: {}", msg);
 				log.info("From: ", getSender().toString());
 				getSender().tell(msg, getSelf());
-			} else if(getSender() != null) {
-				log.info("Hi, I am ", getSelf().toString());
-				log.info("Received String message: {}", msg);
-				log.info("From: ", getSender().toString());
-				getSender().tell(msg, getSelf());
 			}
         } else 
         	unhandled(msg);
@@ -56,6 +51,6 @@ public class DemoActor extends UntypedActor{
 		final ActorSystem system = ActorSystem.create("MySystem");
 		final ActorRef demoActor = system.actorOf(Props.create(DemoActor.class, 2),"demoactor");	
 		final ActorRef otherDemoActor = system.actorOf(Props.create(DemoActor.class, 2),"otherDemoActor");
-		demoActor.tell("Hi, I am otherdemoactor and you?", otherDemoActor);
+		demoActor.tell("Hi, I am otherdemoactor and you?", ActorRef.noSender());
 	}
 }
