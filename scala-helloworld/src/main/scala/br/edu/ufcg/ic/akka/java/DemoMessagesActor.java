@@ -38,10 +38,10 @@ public class DemoMessagesActor extends UntypedActor {
 		final ActorRef dma = system.actorOf(Props.create(DemoMessagesActor.class),"dma");	
 		final ActorRef odma = system.actorOf(Props.create(DemoMessagesActor.class),"odma");
 		Greeting g = new DemoMessagesActor.Greeting("OtherDemoMessagesActor");
-		dma.tell(g, odma);
+		dma.tell(g, ActorRef.noSender());
 		
-		dma.tell(PoisonPill.getInstance(), ActorRef.noSender());
+		/*dma.tell(PoisonPill.getInstance(), ActorRef.noSender());
 		odma.tell(PoisonPill.getInstance(), ActorRef.noSender());
-		system.shutdown();
+		system.shutdown();*/
 	}
 }

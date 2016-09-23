@@ -63,7 +63,6 @@ public class FutureActor extends UntypedActor {
 	}
 	
 	public static void main(String args[]) {
-	
 		final ActorSystem system = ActorSystem.create("MySystem");
 		final ActorRef actorA = system.actorOf(Props.create(FutureActor.class),"actorA");
 		final ActorRef actorB = system.actorOf(Props.create(FutureActor.class),"actorB");

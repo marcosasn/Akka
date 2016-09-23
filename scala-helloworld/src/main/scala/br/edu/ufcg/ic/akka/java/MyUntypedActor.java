@@ -39,6 +39,7 @@ public class MyUntypedActor extends UntypedActor {
             log.info("Received String message: {}", message);
             getSender().tell(message, getSelf());
         } else 
+        	log.info("I got " + message);
         	unhandled(message);
     }
     
@@ -84,7 +85,7 @@ public class MyUntypedActor extends UntypedActor {
 		// ActorSystem is a heavy object: create only one per application
     	//myActor.tell("Hi",ActorRef.noSender());   
     	
-    	myActor.tell(Kill.getInstance(), ActorRef.noSender());
+    	//myActor.tell(Kill.getInstance(), ActorRef.noSender());
     		
     	/*system.stop(myActor2);
     	system.stop(target);

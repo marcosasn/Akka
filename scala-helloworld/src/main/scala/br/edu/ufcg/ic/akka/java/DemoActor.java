@@ -37,12 +37,10 @@ public class DemoActor extends UntypedActor{
 	@Override
 	public void onReceive(Object msg) {
 		if (msg instanceof String) {
-			if(getSender() != null && getSender() ==  ActorRef.noSender()){
-				log.info("Hi, I am ", getSelf().toString());
-				log.info("Received String message: {}", msg);
-				log.info("From: ", getSender().toString());
-				getSender().tell(msg, getSelf());
-			}
+			log.info("Hi, I am ", getSelf().toString());
+			log.info("Received String message: {}", msg);
+			log.info("From: ", getSender().toString());
+			getSender().tell(msg, getSelf());
         } else 
         	unhandled(msg);
 	}
