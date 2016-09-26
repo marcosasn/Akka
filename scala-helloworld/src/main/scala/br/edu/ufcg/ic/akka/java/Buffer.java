@@ -11,7 +11,7 @@ import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 
 public class Buffer extends UntypedActor{
-	LoggingAdapter log;
+	private LoggingAdapter log;
 	private List<Integer> numeros;
 	private static Integer tamanho;
 	
@@ -52,7 +52,7 @@ public class Buffer extends UntypedActor{
     }
 	
 	public Buffer(int tamanho) {
-		log = Logging.getLogger(getContext().system(), this);
+		this.log = Logging.getLogger(getContext().system(), this);
     	this.numeros = new ArrayList<>();
     	Buffer.tamanho = tamanho;
     }
@@ -64,7 +64,6 @@ public class Buffer extends UntypedActor{
             	log.info("Add int : " + ((Input)message).getNumero() + " from : " + getSender());
             } else {
             	getSender().tell(new Full(), getSelf());
-            	//log.info("Buffer está cheio");
             }
         } else if (message instanceof Output){
             if(numeros.size() > 0) {
@@ -73,9 +72,9 @@ public class Buffer extends UntypedActor{
             	getSender().tell(aux, getSelf());
             } else {
             	getSender().tell(new Empty(), getSelf());
-            	//log.info("Buffer está vazio");
             }
-        } else unhandled(message);
+        } else 
+        	unhandled(message);
     }
 }
 

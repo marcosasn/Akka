@@ -6,16 +6,30 @@ import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
+import akka.util.Timeout;
 import br.edu.ufcg.ic.akka.java.Buffer.Empty;
+import br.edu.ufcg.ic.akka.java.Buffer.Input;
 
 public class Consumidor extends UntypedActor {
 	private LoggingAdapter log;
 	private static ActorRef buffer;
-	private static Integer totalConsumir;
 	private boolean consumir;
+	private long espera;
 
 	static public class Consumir {    
         public Consumir() {}
+    }
+	
+	static public class TempoEspera {
+        private final long tempo;
+        
+        public TempoEspera(long tempo) {
+            this.tempo = tempo;
+        }
+
+        public long getTempo() {
+    		return tempo;
+        }
     }
 	
 	public static Props props() {
@@ -24,44 +38,45 @@ public class Consumidor extends UntypedActor {
 
             @Override
             public Consumidor create() throws Exception {
-                return new Consumidor(buffer, totalConsumir);
+                return new Consumidor(buffer);
             }
 
         });
     }
 	
-	public Consumidor(ActorRef buffer, int totalConsumir) {
+	public Consumidor(ActorRef buffer) {
     	log = Logging.getLogger(getContext().system(), this);
     	Consumidor.buffer = buffer;
-    	Consumidor.totalConsumir = totalConsumir;
     	consumir = false;
+    	espera = 0;
     }
 	
-	public void consumir(){
-		for(int i = 1; i <= totalConsumir; i++){
-			buffer.tell(new Buffer.Output(), getSelf());
-		}
-	}
-	
-	public void podeConsumir(){
+	private void consumir(){
 		while(consumir){
-			buffer.tell(new Buffer.Output(), getSelf());
+/*			try{
+				getContext().wait(espera);
+			} catch (InterruptedException e){
+				log.info(e.getMessage());
+			}
+*/			buffer.tell(new Buffer.Output(), getSelf());
 		}
 	}
 	
 	public void onReceive(Object message) throws Exception {
         if (message instanceof Consumir){
         	consumir = true;
-        	podeConsumir();
+        	consumir();
         }
         else if (message instanceof Empty) {
 			log.info("O buffer parece estar vazio...");
 			consumir = false;
-
         } 
-		else if(message instanceof Integer){
-			log.info("Consumidor recebeu um int... " + (Integer)message);
-			
-		} else unhandled(message);
+		else if(message instanceof Input){
+			log.info("Consumidor recebeu um int... " + ((Input)message).getNumero());	
+		} 
+		else if (message instanceof TempoEspera) {
+			espera = ((TempoEspera)message).getTempo();
+		} else 
+			unhandled(message);
     }
 }

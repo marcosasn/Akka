@@ -10,8 +10,8 @@ public class MainBufferProdutor {
 		final ActorSystem system = ActorSystem.create("MySystem");
 		
 		final ActorRef buffer = system.actorOf(Props.create(Buffer.class, 10),"buffer");
-		final ActorRef produtor = system.actorOf(Props.create(Produtor.class, buffer, 5),"produtor");
-		final ActorRef consumidor = system.actorOf(Props.create(Consumidor.class, buffer, 2),"consumidor");
+		final ActorRef produtor = system.actorOf(Props.create(Produtor.class, buffer),"produtor");
+		final ActorRef consumidor = system.actorOf(Props.create(Consumidor.class, buffer),"consumidor");
 		
 		/*final ActorRef produtor1 = system.actorOf(Props.create(Produtor.class, buffer, 5),"produtor1");
 		final ActorRef consumidor1 = system.actorOf(Props.create(Consumidor.class, buffer, 8),"consumidor1");*/

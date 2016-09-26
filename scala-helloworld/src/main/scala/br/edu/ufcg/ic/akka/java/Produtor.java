@@ -6,15 +6,15 @@ import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
-import br.edu.ufcg.ic.akka.java.Buffer.Input;
 import br.edu.ufcg.ic.akka.java.Buffer.Full;
+import br.edu.ufcg.ic.akka.java.Consumidor.TempoEspera;
 
 public class Produtor extends UntypedActor{
 	private LoggingAdapter log;
 	private static ActorRef buffer;
-	private static Integer producaoTotal;
 	private boolean produzir;
 	private int produto;
+	private long espera;
 	
 	static public class Produzir {    
         public Produzir() {}
@@ -26,28 +26,29 @@ public class Produtor extends UntypedActor{
 
             @Override
             public Produtor create() throws Exception {
-                return new Produtor(buffer, producaoTotal);
+                return new Produtor(buffer);
             }
 
         });
     }
 	
-	public Produtor(ActorRef buffer, int producaoTotal) {
+	public Produtor(ActorRef buffer) {
 		log = Logging.getLogger(getContext().system(), this);
     	Produtor.buffer = buffer;
-    	Produtor.producaoTotal = producaoTotal;
     	produzir = false;
     	produto = 0;
+    	espera = 0;
     }
 	
-	public void produzir(){
-		for(int i = 1; i <= producaoTotal; i++){
-			buffer.tell(new Buffer.Input(i), getSelf());
-		}
-	}
-	
-	public void podeProduzir(){
+	public void produzir() throws InterruptedException{
 		while(produzir){
+			/*
+			getSelf().wait(espera);
+			try{
+				getContext().wait(espera);
+			} catch(InterruptedException e){
+				log.info(e.getMessage());
+			}*/
 			buffer.tell(new Buffer.Input(produto), getSelf());
 			produto++;
 		}
@@ -56,12 +57,16 @@ public class Produtor extends UntypedActor{
     public void onReceive(Object message) throws Exception {
         if (message instanceof Produzir){
         	produzir = true;
-        	podeProduzir();
+        	produzir();
         }
-		if (message instanceof Full) {
+        else if (message instanceof Full) {
 			produzir = false;
 			log.info("O buffer parece estar cheio...");
-			
-        } else unhandled(message);
+        }
+        else if (message instanceof TempoEspera) {
+			espera = ((TempoEspera)message).getTempo();
+		}  
+		else 
+			unhandled(message);
     }
 }
