@@ -10,9 +10,11 @@ import br.edu.ufcg.ic.akka.java.Buffer.Input;
 import br.edu.ufcg.ic.akka.java.Buffer.Full;
 
 public class Produtor extends UntypedActor{
-	LoggingAdapter log;
+	private LoggingAdapter log;
 	private static ActorRef buffer;
 	private static Integer producaoTotal;
+	private boolean produzir;
+	private int produto;
 	
 	static public class Produzir {    
         public Produzir() {}
@@ -34,6 +36,8 @@ public class Produtor extends UntypedActor{
 		log = Logging.getLogger(getContext().system(), this);
     	Produtor.buffer = buffer;
     	Produtor.producaoTotal = producaoTotal;
+    	produzir = false;
+    	produto = 0;
     }
 	
 	public void produzir(){
@@ -42,12 +46,20 @@ public class Produtor extends UntypedActor{
 		}
 	}
 	
+	public void podeProduzir(){
+		while(produzir){
+			buffer.tell(new Buffer.Input(produto), getSelf());
+			produto++;
+		}
+	}
+	
     public void onReceive(Object message) throws Exception {
         if (message instanceof Produzir){
-        	produzir();
+        	produzir = true;
+        	podeProduzir();
         }
 		if (message instanceof Full) {
-			//TO DO
+			produzir = false;
 			log.info("O buffer parece estar cheio...");
 			
         } else unhandled(message);

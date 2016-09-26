@@ -9,11 +9,11 @@ import akka.japi.Creator;
 import br.edu.ufcg.ic.akka.java.Buffer.Empty;
 
 public class Consumidor extends UntypedActor {
-	LoggingAdapter log;
+	private LoggingAdapter log;
 	private static ActorRef buffer;
 	private static Integer totalConsumir;
+	private boolean consumir;
 
-	
 	static public class Consumir {    
         public Consumir() {}
     }
@@ -33,7 +33,8 @@ public class Consumidor extends UntypedActor {
 	public Consumidor(ActorRef buffer, int totalConsumir) {
     	log = Logging.getLogger(getContext().system(), this);
     	Consumidor.buffer = buffer;
-    	Consumidor.totalConsumir = totalConsumir; 
+    	Consumidor.totalConsumir = totalConsumir;
+    	consumir = false;
     }
 	
 	public void consumir(){
@@ -42,13 +43,20 @@ public class Consumidor extends UntypedActor {
 		}
 	}
 	
+	public void podeConsumir(){
+		while(consumir){
+			buffer.tell(new Buffer.Output(), getSelf());
+		}
+	}
+	
 	public void onReceive(Object message) throws Exception {
         if (message instanceof Consumir){
-        	consumir();
+        	consumir = true;
+        	podeConsumir();
         }
         else if (message instanceof Empty) {
-			//TO DO
 			log.info("O buffer parece estar vazio...");
+			consumir = false;
 
         } 
 		else if(message instanceof Integer){
