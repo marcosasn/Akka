@@ -21,13 +21,13 @@ public class Consumidor extends UntypedActor {
     }
 	
 	static public class TempoEspera {
-        private final long tempo;
+        private final int tempo;
         
-        public TempoEspera(long tempo) {
+        public TempoEspera(int tempo) {
             this.tempo = tempo;
         }
 
-        public long getTempo() {
+        public int getTempo() {
     		return tempo;
         }
     }
@@ -53,12 +53,12 @@ public class Consumidor extends UntypedActor {
 	
 	private void consumir(){
 		while(consumir){
-/*			try{
-				getContext().wait(espera);
+			try{
+				Thread.sleep(espera);
 			} catch (InterruptedException e){
 				log.info(e.getMessage());
-			}
-*/			buffer.tell(new Buffer.Output(), getSelf());
+			}			
+			buffer.tell(new Buffer.Output(), getSelf());
 		}
 	}
 	

@@ -42,13 +42,11 @@ public class Produtor extends UntypedActor{
 	
 	public void produzir() throws InterruptedException{
 		while(produzir){
-			/*
-			getSelf().wait(espera);
 			try{
-				getContext().wait(espera);
+				Thread.sleep(espera);
 			} catch(InterruptedException e){
 				log.info(e.getMessage());
-			}*/
+			}
 			buffer.tell(new Buffer.Input(produto), getSelf());
 			produto++;
 		}
@@ -63,8 +61,8 @@ public class Produtor extends UntypedActor{
 			produzir = false;
 			log.info("O buffer parece estar cheio...");
         }
-        else if (message instanceof TempoEspera) {
-			espera = ((TempoEspera)message).getTempo();
+        else if (message instanceof Consumidor.TempoEspera) {
+			espera = ((Consumidor.TempoEspera)message).getTempo();
 		}  
 		else 
 			unhandled(message);

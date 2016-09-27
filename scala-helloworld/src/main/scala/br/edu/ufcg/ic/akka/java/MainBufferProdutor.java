@@ -13,18 +13,11 @@ public class MainBufferProdutor {
 		final ActorRef produtor = system.actorOf(Props.create(Produtor.class, buffer),"produtor");
 		final ActorRef consumidor = system.actorOf(Props.create(Consumidor.class, buffer),"consumidor");
 		
-		/*final ActorRef produtor1 = system.actorOf(Props.create(Produtor.class, buffer, 5),"produtor1");
-		final ActorRef consumidor1 = system.actorOf(Props.create(Consumidor.class, buffer, 8),"consumidor1");*/
+		/*Informando o tempo de produção consumo em milisegundos(10E-3)*/
+		produtor.tell(new Consumidor.TempoEspera(1000), ActorRef.noSender());
+		consumidor.tell(new Consumidor.TempoEspera(1000), ActorRef.noSender());
 		
-		//First case
 		produtor.tell(new Produtor.Produzir(), ActorRef.noSender());
 		consumidor.tell(new Consumidor.Consumir(), ActorRef.noSender());
-		/*produtor1.tell(new Produtor.Produzir(), ActorRef.noSender());
-		consumidor1.tell(new Consumidor.Consumir(), ActorRef.noSender());*/
-		
-		/*consumidor.tell(new Consumidor.Consumir(), ActorRef.noSender());
-		produtor.tell(new Produtor.Produzir(), ActorRef.noSender());
-		consumidor.tell(new Consumidor.Consumir(), ActorRef.noSender());*/
-		
 	}
 }
