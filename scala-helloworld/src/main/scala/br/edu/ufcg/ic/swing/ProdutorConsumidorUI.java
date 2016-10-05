@@ -8,6 +8,14 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.LayoutStyle.ComponentPlacement;
+
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
+import br.edu.ufcg.ic.akka.java.Buffer;
+import br.edu.ufcg.ic.akka.java.Consumidor;
+import br.edu.ufcg.ic.akka.java.Produtor;
+
 import javax.swing.JTextField;
 import java.awt.FlowLayout;
 import javax.swing.JButton;
@@ -118,8 +126,24 @@ public class ProdutorConsumidorUI {
 	}
 	
 	private void execute() {
-		System.out.println("Espera produção " + textField_espera_producao.getText());
-		System.out.println("Espera consumo " + textField_espera_consumo.getText());
-		System.out.println("Capacidade buffer " + textField_capacidade_buffer.getText());
+		System.out.println("Espera produção " + textField_espera_producao.getText().toString());
+		System.out.println("Espera consumo " + textField_espera_consumo.getText().toString());
+		System.out.println("Capacidade buffer " + Integer.parseInt(textField_capacidade_buffer.getText().toString()));
+		
+		final ActorSystem system = ActorSystem.create("SystemProdutorConsumidor");
+		
+		final ActorRef buffer = system.actorOf(Props.create(Buffer.class, 
+				Integer.parseInt(textField_capacidade_buffer.getText().toString())),"buffer");
+		final ActorRef produtor = system.actorOf(Props.create(Produtor.class, buffer),"produtor");
+		final ActorRef consumidor = system.actorOf(Props.create(Consumidor.class, buffer),"consumidor");
+		
+		/*Informando o tempo de produção consumo em milisegundos(10E-3)*/
+		produtor.tell(new Consumidor.TempoEspera(Integer.parseInt(textField_espera_producao.getText().toString())),
+				ActorRef.noSender());
+		consumidor.tell(new Consumidor.TempoEspera(Integer.parseInt(textField_espera_consumo.getText().toString())),
+				ActorRef.noSender());
+		
+		produtor.tell(new Produtor.Produzir(), ActorRef.noSender());
+		consumidor.tell(new Consumidor.Consumir(), ActorRef.noSender());
 	}
 }
