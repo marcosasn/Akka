@@ -1,5 +1,8 @@
 package br.edu.ufcg.ic.akka.java;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
@@ -44,7 +47,6 @@ public class Produtor extends UntypedActor{
     	espera = 0;
     }
 
-	
 	public void produzir() throws InterruptedException{
 		while(produzir){
 			try{
@@ -58,19 +60,31 @@ public class Produtor extends UntypedActor{
 		}
 	}
 	
+	public void produzirAssincrono() {
+		Timer temporizador = new Timer();
+		
+		while(produzir){
+			temporizador.schedule(new TimerTask(){
+
+				@Override
+				public void run() {
+					buffer.tell(new Buffer.Input(produto), getSelf());
+					//System.out.println("Inteiro produzido " + produto);
+					produto++;
+					//temporizador.cancel();
+				}
+				
+			}, espera);
+	
+		}
+		System.out.println("Inteiro não produzirdo... =[");
+	}
+	
     public void onReceive(Object message) throws Exception {
         if (message instanceof Produzir){
         	produzir = true;
-        	while(produzir){
-    			try{
-    				Thread.sleep(espera);
-    			} catch(InterruptedException e){
-    				log.info(e.getMessage());
-    			}
-    			buffer.tell(new Buffer.Input(produto), getSelf());
-    			System.out.println("Inteiro produzido " + produto);
-    			produto++;
-    		}
+        	//produzir();
+        	produzirAssincrono();
         }
         else if (message instanceof Full) {
 			produzir = false;
@@ -88,46 +102,4 @@ public class Produtor extends UntypedActor{
 		else 
 			unhandled(message);
     }
-
-	public LoggingAdapter getLog() {
-		return log;
-	}
-
-	public void setLog(LoggingAdapter log) {
-		this.log = log;
-	}
-
-	public static ActorRef getBuffer() {
-		return buffer;
-	}
-
-	public static void setBuffer(ActorRef buffer) {
-		Produtor.buffer = buffer;
-	}
-
-	public boolean isProduzir() {
-		return produzir;
-	}
-
-	public void setProduzir(boolean produzir) {
-		this.produzir = produzir;
-	}
-
-	public int getProduto() {
-		return produto;
-	}
-
-	public void setProduto(int produto) {
-		this.produto = produto;
-	}
-
-	public long getEspera() {
-		return espera;
-	}
-
-	public void setEspera(long espera) {
-		this.espera = espera;
-	}
-    
-    
 }
