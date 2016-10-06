@@ -28,6 +28,10 @@ public class ProdutorConsumidorUI {
 	private JTextField textField_espera_producao;
 	private JTextField textField_espera_consumo;
 	private JTextField textField_capacidade_buffer;
+	
+	ActorSystem system;
+	ActorRef produtor;
+	ActorRef consumidor;
 
 	/**
 	 * Launch the application.
@@ -88,15 +92,15 @@ public class ProdutorConsumidorUI {
 				.addGroup(groupLayout.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addComponent(panel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 497, Short.MAX_VALUE)
+						.addComponent(panel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
 						.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
 						.addComponent(panel_2, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
 						.addComponent(panel_3, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE))
 					.addContainerGap())
 		);
 		groupLayout.setVerticalGroup(
-			groupLayout.createParallelGroup(Alignment.TRAILING)
-				.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
+			groupLayout.createParallelGroup(Alignment.LEADING)
+				.addGroup(groupLayout.createSequentialGroup()
 					.addContainerGap()
 					.addComponent(panel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addGap(18)
@@ -108,6 +112,9 @@ public class ProdutorConsumidorUI {
 					.addContainerGap(74, Short.MAX_VALUE))
 		);
 		
+		JButton btnStopConsumidor = new JButton("Pause");
+		panel_1.add(btnStopConsumidor);
+		
 		JButton btnExecutar = new JButton("Executar");
 		btnExecutar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -116,12 +123,34 @@ public class ProdutorConsumidorUI {
 		});
 		panel_3.add(btnExecutar);
 		
+		JButton btnStop = new JButton("Stop");
+		btnStop.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				system.shutdown();
+			}
+		});
+		panel_3.add(btnStop);
+		
 		JLabel lblNewLabel = new JLabel("Tempo de espera produção");
 		panel.add(lblNewLabel);
 		
 		textField_espera_producao = new JTextField();
 		panel.add(textField_espera_producao);
 		textField_espera_producao.setColumns(10);
+		
+		JButton btnStopProdutor = new JButton("Pause");
+		btnStopProdutor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(btnStopProdutor.getText().equals("Pause")){
+					produtor.tell(new Produtor.Pausar(),ActorRef.noSender());				
+					btnStopProdutor.setText("Resume");
+				}else{
+					produtor.tell(new Produtor.Produzir(),ActorRef.noSender());				
+					btnStopProdutor.setText("Pausar");
+				}
+			}
+		});
+		panel.add(btnStopProdutor);
 		frame.getContentPane().setLayout(groupLayout);
 	}
 	
@@ -130,12 +159,12 @@ public class ProdutorConsumidorUI {
 		System.out.println("Espera consumo " + textField_espera_consumo.getText().toString());
 		System.out.println("Capacidade buffer " + Integer.parseInt(textField_capacidade_buffer.getText().toString()));
 		
-		final ActorSystem system = ActorSystem.create("SystemProdutorConsumidor");
+		system = ActorSystem.create("SystemProdutorConsumidor");
 		
 		final ActorRef buffer = system.actorOf(Props.create(Buffer.class, 
 				Integer.parseInt(textField_capacidade_buffer.getText().toString())),"buffer");
-		final ActorRef produtor = system.actorOf(Props.create(Produtor.class, buffer),"produtor");
-		final ActorRef consumidor = system.actorOf(Props.create(Consumidor.class, buffer),"consumidor");
+		produtor = system.actorOf(Props.create(Produtor.class, buffer),"produtor");
+		consumidor = system.actorOf(Props.create(Consumidor.class, buffer),"consumidor");
 		
 		/*Informando o tempo de produção consumo em milisegundos(10E-3)*/
 		produtor.tell(new Consumidor.TempoEspera(Integer.parseInt(textField_espera_producao.getText().toString())),
