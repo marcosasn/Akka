@@ -11,6 +11,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
 import br.edu.ufcg.ic.akka.java.Buffer;
 import br.edu.ufcg.ic.akka.java.Consumidor;
@@ -29,9 +30,10 @@ public class ProdutorConsumidorUI {
 	private JTextField textField_espera_consumo;
 	private JTextField textField_capacidade_buffer;
 	
-	ActorSystem system;
-	ActorRef produtor;
-	ActorRef consumidor;
+	private ActorSystem system;
+	private ActorRef produtor;
+	private ActorRef consumidor;
+	private ActorRef buffer;
 
 	/**
 	 * Launch the application.
@@ -126,6 +128,9 @@ public class ProdutorConsumidorUI {
 		JButton btnStop = new JButton("Stop");
 		btnStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				consumidor.tell(PoisonPill.getInstance(), ActorRef.noSender());
+				produtor.tell(PoisonPill.getInstance(), ActorRef.noSender());
+				buffer.tell(PoisonPill.getInstance(), ActorRef.noSender());
 				system.shutdown();
 			}
 		});
@@ -142,10 +147,10 @@ public class ProdutorConsumidorUI {
 		btnStopProdutor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(btnStopProdutor.getText().equals("Pause")){
-					produtor.tell(new Produtor.Pausar(),ActorRef.noSender());				
+					produtor.tell(new Produtor.Pausar(), ActorRef.noSender());				
 					btnStopProdutor.setText("Resume");
 				}else{
-					produtor.tell(new Produtor.Produzir(),ActorRef.noSender());				
+					produtor.tell(new Produtor.Pausar(), ActorRef.noSender());				
 					btnStopProdutor.setText("Pausar");
 				}
 			}
@@ -161,7 +166,7 @@ public class ProdutorConsumidorUI {
 		
 		system = ActorSystem.create("SystemProdutorConsumidor");
 		
-		final ActorRef buffer = system.actorOf(Props.create(Buffer.class, 
+		buffer = system.actorOf(Props.create(Buffer.class, 
 				Integer.parseInt(textField_capacidade_buffer.getText().toString())),"buffer");
 		produtor = system.actorOf(Props.create(Produtor.class, buffer),"produtor");
 		consumidor = system.actorOf(Props.create(Consumidor.class, buffer),"consumidor");

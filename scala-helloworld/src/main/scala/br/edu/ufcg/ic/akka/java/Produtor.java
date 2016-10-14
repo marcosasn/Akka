@@ -16,7 +16,7 @@ import br.edu.ufcg.ic.akka.java.Consumidor.TempoEspera;
 public class Produtor extends UntypedActor{
 	private LoggingAdapter log;
 	private static ActorRef buffer;
-	private boolean produzir;
+	private boolean pausado;
 	private int produto;
 	private long espera;
 	
@@ -43,12 +43,12 @@ public class Produtor extends UntypedActor{
 	public Produtor(ActorRef buffer) {
 		log = Logging.getLogger(getContext().system(), this);
     	Produtor.buffer = buffer;
-    	produzir = false;
+    	pausado = false;
     	produto = 0;
     	espera = 0;
     }
 
-	public void produzir() throws InterruptedException{
+	/*public void produzir() throws InterruptedException{
 		while(produzir){
 			try{
 				Thread.sleep(espera);
@@ -59,9 +59,9 @@ public class Produtor extends UntypedActor{
 			System.out.println("Inteiro produzido " + produto);
 			produto++;
 		}
-	}
+	}*/
 	
-	public void produzirAssincrono() {
+	/*public void produzirAssincrono() {
 		Timer temporizador = new Timer();
 		
 		while(produzir){
@@ -78,26 +78,24 @@ public class Produtor extends UntypedActor{
 			}, espera);
 	
 		}
-		System.out.println("Inteiro não produzirdo... =[");
-	}
+	}*/
 	
     public void onReceive(Object message) throws Exception {
         if (message instanceof Produzir){
-        	//produzir = true;
-        	//produzir();
-        	//produzirAssincrono();
-        	Timer temporizador = new Timer();
-        	temporizador.schedule(new TimerTask(){
+        	if(!pausado){
+        		Timer temporizador = new Timer();
+            	temporizador.schedule(new TimerTask(){
 
-				@Override
-				public void run() {
-					buffer.tell(new Buffer.Input(produto), getSelf());
-					produto++;
-					//System.out.println("Inteiro produzido " + produto);
-					//temporizador.cancel();
-				}
-				
-			}, espera);
+    				@Override
+    				public void run() {
+    					buffer.tell(new Buffer.Input(produto), getSelf());
+    					produto++;
+    					//System.out.println("Inteiro produzido " + produto);
+    					//temporizador.cancel();
+    				}
+    				
+    			}, espera);
+        	}
         }
         else if (message instanceof Buffer.Full) {
 			//produzir = false;
@@ -105,15 +103,19 @@ public class Produtor extends UntypedActor{
         	produto--;
         	System.out.println("O produtor foi parado...");
             
+        }  
+        else if (message instanceof Pausar) {
+			if(pausado){
+				pausado = false;
+				System.out.println("O produtor foi resumido...");
+			}else{
+				pausado = true;
+				System.out.println("O produtor foi pausado...");
+			}
         }
         else if (message instanceof Consumidor.TempoEspera) {
 			espera = ((Consumidor.TempoEspera)message).getTempo();
-		}  
-        else if (message instanceof Pausar) {
-			/*produzir = false;
-			log.info("O produtor foi pausado...");
-			System.out.println("O produtor foi pausado...");*/
-        }
+		}
 		else 
 			unhandled(message);
     }
