@@ -3,6 +3,7 @@ package br.edu.ufcg.ic.akka.java;
 import java.util.ArrayList;
 import java.util.List;
 
+import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.Stash;
 import akka.actor.UntypedActor;
@@ -14,6 +15,8 @@ public class Buffer extends UntypedActor{
 	private LoggingAdapter log;
 	private List<Integer> numeros;
 	private static Integer tamanho;
+	private ActorRef produtor;
+	private ActorRef consumidor;
 	
 	static public class Input {
         private final Integer numero;
@@ -59,19 +62,23 @@ public class Buffer extends UntypedActor{
 	
     public void onReceive(Object message) throws Exception {
         if (message instanceof Input) {
+        	produtor = getSender();
             if(numeros.size() < tamanho) {
             	numeros.add(((Input)message).getNumero());
             	log.info("Add int : " + ((Input)message).getNumero() + " from : " + getSender());
+            	produtor.tell(new Produtor.Produzir(), getSelf());
             } else {
-            	getSender().tell(new Full(), getSelf());
+            	produtor.tell(new Buffer.Full(), getSelf());
             }
         } else if (message instanceof Output){
+        	consumidor = getSender();
             if(numeros.size() > 0) {
             	int aux = numeros.remove(numeros.size() - 1);
             	log.info("Removido int : " + aux + " from : " + getSender());
-            	getSender().tell(aux, getSelf());
+            	consumidor.tell(aux, getSelf());
+            	produtor.tell(new Produtor.Produzir(), getSelf());
             } else {
-            	getSender().tell(new Empty(), getSelf());
+            	consumidor.tell(new Empty(), getSelf());
             }
         } else 
         	unhandled(message);

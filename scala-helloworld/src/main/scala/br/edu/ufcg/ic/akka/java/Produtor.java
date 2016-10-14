@@ -9,6 +9,7 @@ import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
+import akka.japi.Procedure;
 import br.edu.ufcg.ic.akka.java.Buffer.Full;
 import br.edu.ufcg.ic.akka.java.Consumidor.TempoEspera;
 
@@ -82,22 +83,36 @@ public class Produtor extends UntypedActor{
 	
     public void onReceive(Object message) throws Exception {
         if (message instanceof Produzir){
-        	produzir = true;
+        	//produzir = true;
         	//produzir();
-        	produzirAssincrono();
+        	//produzirAssincrono();
+        	Timer temporizador = new Timer();
+        	temporizador.schedule(new TimerTask(){
+
+				@Override
+				public void run() {
+					buffer.tell(new Buffer.Input(produto), getSelf());
+					produto++;
+					//System.out.println("Inteiro produzido " + produto);
+					//temporizador.cancel();
+				}
+				
+			}, espera);
         }
-        else if (message instanceof Full) {
-			produzir = false;
-			log.info("O buffer parece estar cheio...");
-			System.out.println("O buffer parece estar cheio...");
+        else if (message instanceof Buffer.Full) {
+			//produzir = false;
+        	//getContext().become(parado);
+        	produto--;
+        	System.out.println("O produtor foi parado...");
+            
         }
         else if (message instanceof Consumidor.TempoEspera) {
 			espera = ((Consumidor.TempoEspera)message).getTempo();
 		}  
         else if (message instanceof Pausar) {
-			produzir = false;
+			/*produzir = false;
 			log.info("O produtor foi pausado...");
-			System.out.println("O produtor foi pausado...");
+			System.out.println("O produtor foi pausado...");*/
         }
 		else 
 			unhandled(message);
