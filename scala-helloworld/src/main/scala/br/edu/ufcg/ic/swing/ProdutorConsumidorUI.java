@@ -115,6 +115,17 @@ public class ProdutorConsumidorUI {
 		);
 		
 		JButton btnStopConsumidor = new JButton("Pause");
+		btnStopConsumidor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(btnStopConsumidor.getText().equals("Pause")){
+					btnStopConsumidor.setText("Resume");
+				}else{
+					btnStopConsumidor.setText("Pause");
+				}
+				System.out.println("Mandando mensagem para pausar o consumidor");
+				consumidor.tell(new Consumidor.Pausar(), ActorRef.noSender());			
+			}
+		});
 		panel_1.add(btnStopConsumidor);
 		
 		JButton btnExecutar = new JButton("Executar");

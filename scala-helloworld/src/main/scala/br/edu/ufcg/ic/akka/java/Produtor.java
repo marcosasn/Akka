@@ -19,6 +19,20 @@ public class Produtor extends UntypedActor{
 	private boolean pausado;
 	private int produto;
 	private long espera;
+	Timer temporizador = new Timer();
+	TimerTask task = new TimerTask(){
+
+		@Override
+		public void run() {
+			if(!pausado){
+				buffer.tell(new Buffer.Input(produto), getSelf());
+				produto++;
+			}
+			//System.out.println("Inteiro produzido " + produto);
+			//temporizador.cancel();
+		}
+		
+	};
 	
 	static public class Produzir {    
         public Produzir() {}
@@ -83,25 +97,14 @@ public class Produtor extends UntypedActor{
     public void onReceive(Object message) throws Exception {
         if (message instanceof Produzir){
         	if(!pausado){
-        		Timer temporizador = new Timer();
-            	temporizador.schedule(new TimerTask(){
-
-    				@Override
-    				public void run() {
-    					buffer.tell(new Buffer.Input(produto), getSelf());
-    					produto++;
-    					//System.out.println("Inteiro produzido " + produto);
-    					//temporizador.cancel();
-    				}
-    				
-    			}, espera);
+        		startProduction();
         	}
         }
         else if (message instanceof Buffer.Full) {
 			//produzir = false;
         	//getContext().become(parado);
-        	produto--;
-        	System.out.println("O produtor foi parado...");
+        	//produto--;
+        	System.out.println("Buffer cheio. input perdido: " + ((Full) message).getInput());
             
         }  
         else if (message instanceof Pausar) {
@@ -119,4 +122,13 @@ public class Produtor extends UntypedActor{
 		else 
 			unhandled(message);
     }
+
+	private void startProduction() {
+		
+		try {
+			temporizador.scheduleAtFixedRate(task, 10, espera);
+		} catch (IllegalStateException e) {
+			//fazer nada, thread já foi colocada la
+		}
+	}
 }

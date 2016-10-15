@@ -5,7 +5,6 @@ import java.util.List;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import akka.actor.Stash;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -35,7 +34,17 @@ public class Buffer extends UntypedActor{
     }
 	
 	static public class Full {    
-        public Full() {}
+		private int input;
+        public Full(int input) {
+        	this.input = input;
+        }
+		public int getInput() {
+			return input;
+		}
+		public void setInput(int input) {
+			this.input = input;
+		}
+        
     }
 	
 	static public class Empty {    
@@ -63,22 +72,23 @@ public class Buffer extends UntypedActor{
     public void onReceive(Object message) throws Exception {
         if (message instanceof Input) {
         	produtor = getSender();
-            if(numeros.size() < tamanho) {
-            	numeros.add(((Input)message).getNumero());
-            	log.info("Add int : " + ((Input)message).getNumero() + " from : " + getSender());
-            	produtor.tell(new Produtor.Produzir(), getSelf());
+        	int numeroRecebido = ((Input)message).getNumero();
+        	if(numeros.size() < tamanho) {
+            	numeros.add(numeroRecebido);
+            	log.info("Add int : " + numeroRecebido + " from : " + getSender());
+            	//produtor.tell(new Produtor.Produzir(), getSelf());
             } else {
-            	produtor.tell(new Buffer.Full(), getSelf());
+            	produtor.tell(new Buffer.Full(numeroRecebido), getSelf());
             }
         } else if (message instanceof Output){
         	consumidor = getSender();
             if(numeros.size() > 0) {
             	int aux = numeros.remove(numeros.size() - 1);
             	log.info("Removido int : " + aux + " from : " + getSender());
-            	consumidor.tell(aux, getSelf());
-            	produtor.tell(new Produtor.Produzir(), getSelf());
+            	consumidor.tell(new Buffer.Input(aux), getSelf());
+            	//produtor.tell(new Produtor.Produzir(), getSelf());
             } else {
-            	consumidor.tell(new Empty(), getSelf());
+            	consumidor.tell(new Buffer.Empty(), getSelf());
             }
         } else 
         	unhandled(message);

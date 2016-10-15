@@ -9,6 +9,7 @@ import akka.japi.Creator;
 import akka.util.Timeout;
 import br.edu.ufcg.ic.akka.java.Buffer.Empty;
 import br.edu.ufcg.ic.akka.java.Buffer.Input;
+import br.edu.ufcg.ic.akka.java.Produtor.Pausar;
 
 public class Consumidor extends UntypedActor {
 	private LoggingAdapter log;
@@ -18,6 +19,10 @@ public class Consumidor extends UntypedActor {
 
 	static public class Consumir {    
         public Consumir() {}
+    }
+
+	static public class Pausar {    
+        public Pausar() {}
     }
 	
 	static public class TempoEspera {
@@ -68,10 +73,21 @@ public class Consumidor extends UntypedActor {
         	consumir();
         }
         else if (message instanceof Empty) {
-			log.info("O buffer parece estar vazio...");
-			consumir = false;
+			//log.info("O buffer parece estar vazio...");
+			//consumir = false;
+        	System.out.println("Buffer esta vazio");
         } 
-		else if(message instanceof Input){
+        else if (message instanceof Consumidor.Pausar) {
+        	System.out.println("Valor de consumir: " + consumir);
+			if(consumir){
+				consumir = false;
+				System.out.println("O consumidor foi resumido...");
+			}else{
+				consumir = true;
+				System.out.println("O consumidor foi pausado...");
+			}
+        }
+		else if(message instanceof Buffer.Input){
 			log.info("Consumidor recebeu um int... " + ((Input)message).getNumero());	
 		} 
 		else if (message instanceof TempoEspera) {
