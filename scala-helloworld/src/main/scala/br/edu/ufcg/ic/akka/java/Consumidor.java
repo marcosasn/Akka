@@ -1,5 +1,8 @@
 package br.edu.ufcg.ic.akka.java;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
@@ -8,14 +11,26 @@ import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import akka.util.Timeout;
 import br.edu.ufcg.ic.akka.java.Buffer.Empty;
+import br.edu.ufcg.ic.akka.java.Buffer.Full;
 import br.edu.ufcg.ic.akka.java.Buffer.Input;
 import br.edu.ufcg.ic.akka.java.Produtor.Pausar;
 
 public class Consumidor extends UntypedActor {
 	private LoggingAdapter log;
 	private static ActorRef buffer;
-	private boolean consumir;
+	private boolean pausado;
 	private long espera;
+	Timer temporizador = new Timer();
+	TimerTask task = new TimerTask(){
+
+		@Override
+		public void run() {
+			if(!pausado){
+				buffer.tell(new Buffer.Output(), getSelf());
+			}
+		}
+		
+	};
 
 	static public class Consumir {    
         public Consumir() {}
@@ -52,11 +67,11 @@ public class Consumidor extends UntypedActor {
 	public Consumidor(ActorRef buffer) {
     	log = Logging.getLogger(getContext().system(), this);
     	Consumidor.buffer = buffer;
-    	consumir = false;
+    	pausado = false;
     	espera = 0;
     }
 	
-	private void consumir(){
+	/*private void consumir(){
 		while(consumir){
 			try{
 				Thread.sleep(espera);
@@ -65,34 +80,39 @@ public class Consumidor extends UntypedActor {
 			}			
 			buffer.tell(new Buffer.Output(), getSelf());
 		}
-	}
+	}*/
 	
 	public void onReceive(Object message) throws Exception {
         if (message instanceof Consumir){
-        	consumir = true;
-        	consumir();
+        	if(!pausado){
+        		startConsummation();
+        	}
         }
         else if (message instanceof Empty) {
-			//log.info("O buffer parece estar vazio...");
-			//consumir = false;
-        	System.out.println("Buffer esta vazio");
+        	System.out.println("Buffer vazio.");
         } 
         else if (message instanceof Consumidor.Pausar) {
-        	System.out.println("Valor de consumir: " + consumir);
-			if(consumir){
-				consumir = false;
+        	if(pausado){
+				pausado = false;
 				System.out.println("O consumidor foi resumido...");
 			}else{
-				consumir = true;
+				pausado = true;
 				System.out.println("O consumidor foi pausado...");
 			}
         }
 		else if(message instanceof Buffer.Input){
-			log.info("Consumidor recebeu um int... " + ((Input)message).getNumero());	
+        	System.out.println("Consumidor recebeu int. input recebido: " + ((Buffer.Input)message).getNumero());
 		} 
 		else if (message instanceof TempoEspera) {
 			espera = ((TempoEspera)message).getTempo();
 		} else 
 			unhandled(message);
     }
+	
+	private void startConsummation() {	
+		try {
+			temporizador.scheduleAtFixedRate(task, 10, espera);
+		} catch (IllegalStateException e) {
+		}
+	}
 }
