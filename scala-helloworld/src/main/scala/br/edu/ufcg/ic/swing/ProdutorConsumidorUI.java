@@ -34,6 +34,7 @@ public class ProdutorConsumidorUI {
 	private ActorRef produtor;
 	private ActorRef consumidor;
 	private ActorRef buffer;
+	private ListenerBuffer listenerBuffer;
 
 	/**
 	 * Launch the application.
@@ -88,16 +89,19 @@ public class ProdutorConsumidorUI {
 		panel_2.add(textField_capacidade_buffer);
 		
 		JPanel panel_3 = new JPanel();
+		
+		JPanel panel_4 = new JPanel();
 		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addGroup(groupLayout.createSequentialGroup()
+				.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
 					.addContainerGap()
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addComponent(panel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
-						.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
-						.addComponent(panel_2, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
-						.addComponent(panel_3, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE))
+					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+						.addComponent(panel_4, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
+						.addComponent(panel, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
+						.addComponent(panel_1, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
+						.addComponent(panel_2, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
+						.addComponent(panel_3, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE))
 					.addContainerGap())
 		);
 		groupLayout.setVerticalGroup(
@@ -111,10 +115,28 @@ public class ProdutorConsumidorUI {
 					.addComponent(panel_2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addGap(18)
 					.addComponent(panel_3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(74, Short.MAX_VALUE))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(panel_4, GroupLayout.DEFAULT_SIZE, 46, Short.MAX_VALUE)
+					.addContainerGap())
 		);
 		
+		JLabel lblBufferstate = new JLabel("[]");
+		listenerBuffer = new ListenerBuffer();
+		listenerBuffer.setLabelBuffer(lblBufferstate);
+		panel_4.add(lblBufferstate);
+		
 		JButton btnStopConsumidor = new JButton("Pause");
+		btnStopConsumidor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(btnStopConsumidor.getText().equals("Pause")){
+					btnStopConsumidor.setText("Resume");
+				}else{
+					btnStopConsumidor.setText("Pause");
+				}
+				System.out.println("Mandando mensagem para pausar o consumidor");
+				consumidor.tell(new Consumidor.Pausar(), ActorRef.noSender());			
+			}
+		});
 		panel_1.add(btnStopConsumidor);
 		
 		JButton btnExecutar = new JButton("Executar");
@@ -151,7 +173,7 @@ public class ProdutorConsumidorUI {
 					btnStopProdutor.setText("Resume");
 				}else{
 					produtor.tell(new Produtor.Pausar(), ActorRef.noSender());				
-					btnStopProdutor.setText("Pausar");
+					btnStopProdutor.setText("Pause");
 				}
 			}
 		});
@@ -167,7 +189,9 @@ public class ProdutorConsumidorUI {
 		system = ActorSystem.create("SystemProdutorConsumidor");
 		
 		buffer = system.actorOf(Props.create(Buffer.class, 
-				Integer.parseInt(textField_capacidade_buffer.getText().toString())),"buffer");
+						Integer.parseInt(textField_capacidade_buffer.getText().toString()),
+						listenerBuffer),"buffer");
+		
 		produtor = system.actorOf(Props.create(Produtor.class, buffer),"produtor");
 		consumidor = system.actorOf(Props.create(Consumidor.class, buffer),"consumidor");
 		
