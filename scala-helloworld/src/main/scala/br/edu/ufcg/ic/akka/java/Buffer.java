@@ -3,12 +3,16 @@ package br.edu.ufcg.ic.akka.java;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
+import br.edu.ufcg.ic.swing.ListenerBuffer;
 
 public class Buffer extends UntypedActor{
 	private LoggingAdapter log;
@@ -16,6 +20,7 @@ public class Buffer extends UntypedActor{
 	private static Integer tamanho;
 	private ActorRef produtor;
 	private ActorRef consumidor;
+	private static ListenerBuffer listener;
 	
 	static public class Input {
         private final Integer numero;
@@ -44,7 +49,6 @@ public class Buffer extends UntypedActor{
 		public void setInput(int input) {
 			this.input = input;
 		}
-        
     }
 	
 	static public class Empty {    
@@ -57,17 +61,40 @@ public class Buffer extends UntypedActor{
 
             @Override
             public Buffer create() throws Exception {
-                return new Buffer(tamanho);
+                return new Buffer(tamanho, listener);
             }
 
         });
     }
 	
-	public Buffer(int tamanho) {
+	public Buffer(int tamanho, ListenerBuffer listenerBuffer) {
 		this.log = Logging.getLogger(getContext().system(), this);
     	this.numeros = new ArrayList<>();
     	Buffer.tamanho = tamanho;
+    	if(listenerBuffer != null){
+			listener = listenerBuffer;
+		}
     }
+	
+	/*private void addChangeListener(ListenerBuffer listenerBuffer){
+		if(listenerBuffer != null){
+			if(!listeners.contains(listenerBuffer)){
+				listeners.add(listenerBuffer);
+			}
+		}
+	}*/
+	
+	/*private void fireChangeEventPerformed() {
+		ChangeEvent changeEvent = new ChangeEvent(numeros);
+		for (ListenerBuffer listener : listeners) {
+			listener.stateChanged(changeEvent);
+		}
+	}*/
+	
+	private void fireChangeEventPerformed() {
+		ChangeEvent changeEvent = new ChangeEvent(numeros);
+		listener.stateChanged(changeEvent);
+	}
 	
     public void onReceive(Object message) throws Exception {
         if (message instanceof Input) {
@@ -76,7 +103,7 @@ public class Buffer extends UntypedActor{
         	if(numeros.size() < tamanho) {
             	numeros.add(numeroRecebido);
             	log.info("Add int : " + numeroRecebido + " from : " + getSender());
-            	//produtor.tell(new Produtor.Produzir(), getSelf());
+            	fireChangeEventPerformed();
             } else {
             	produtor.tell(new Buffer.Full(numeroRecebido), getSelf());
             }
@@ -86,6 +113,7 @@ public class Buffer extends UntypedActor{
             	int aux = numeros.remove(numeros.size() - 1);
             	log.info("Removido int : " + aux + " from : " + getSender());
             	consumidor.tell(new Buffer.Input(aux), getSelf());
+            	fireChangeEventPerformed();
             	//produtor.tell(new Produtor.Produzir(), getSelf());
             } else {
             	consumidor.tell(new Buffer.Empty(), getSelf());
@@ -94,5 +122,3 @@ public class Buffer extends UntypedActor{
         	unhandled(message);
     }
 }
-
-
