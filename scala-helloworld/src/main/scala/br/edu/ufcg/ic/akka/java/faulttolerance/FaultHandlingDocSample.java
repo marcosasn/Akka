@@ -29,10 +29,6 @@ import static akka.actor.SupervisorStrategy.escalate;
 import akka.actor.SupervisorStrategy.Directive;
 import static akka.pattern.Patterns.ask;
 import static akka.pattern.Patterns.pipe;
-/*import static docs.actor.japi.FaultHandlingDocSample.WorkerApi.*;
-import static docs.actor.japi.FaultHandlingDocSample.CounterServiceApi.*;
-import static docs.actor.japi.FaultHandlingDocSample.CounterApi.*;
-import static docs.actor.japi.FaultHandlingDocSample.StorageApi.*;*/
 
 public class FaultHandlingDocSample {
 	/**
