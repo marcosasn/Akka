@@ -56,6 +56,8 @@ public class FaultHandlingTest {
 	@Test
 	public void mustEmploySupervisorStrategyNullPointerException() throws Exception {
 		//NullPointerException directive
+		child.tell(42, ActorRef.noSender());
+		assert Await.result(ask(child, "get", 5000), timeout).equals(42);
 		child.tell(new NullPointerException(), ActorRef.noSender());
 		assert Await.result(ask(child, "get", 5000), timeout).equals(0);
 	}
@@ -74,9 +76,6 @@ public class FaultHandlingTest {
 		// Exception directive
 		final TestProbe probe = new TestProbe(system); 
 		probe.watch(child);
-		child = (ActorRef) Await.result(ask(supervisor, Props.create(Child.class), 5000), timeout);
-		probe.watch(child);
-		assert Await.result(ask(child, "get", 5000), timeout).equals(0);
 		child.tell(new Exception(), ActorRef.noSender());
 		probe.expectMsgClass(Terminated.class);
 	}

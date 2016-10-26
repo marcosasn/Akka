@@ -358,7 +358,6 @@ public class FaultHandlingDocSample {
 		}
 
 		@Override
-
 		public void onReceive(Object msg) {
 			log.debug("received message {}", msg);
 			if (msg instanceof UseStorage) {
@@ -421,7 +420,6 @@ public class FaultHandlingDocSample {
 			public String toString() {
 				return String.format("%s(%s)", getClass().getSimpleName(), key);
 			}
-
 		}
 
 		public static class StorageException extends RuntimeException {
