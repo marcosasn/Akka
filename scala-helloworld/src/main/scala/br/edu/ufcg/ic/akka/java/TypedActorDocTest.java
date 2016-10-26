@@ -90,6 +90,7 @@ public class TypedActorDocTest {
 			
 			// Returns the external proxy of the current Typed Actor,
 			// method only valid within methods of a TypedActor implementation
+			// se instanciar dois atores do tipo square, qual a referência capturada com o self?
 			Squarer sq = TypedActor.<Squarer>self();
 			
 			// Returns a contextual instance of the Typed Actor Extension
