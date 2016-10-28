@@ -13,9 +13,12 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
-import br.edu.ufcg.ic.akka.java.Buffer;
-import br.edu.ufcg.ic.akka.java.Consumidor;
-import br.edu.ufcg.ic.akka.java.Produtor;
+
+import br.edu.ufcg.ic.akka.java.faulttolerance.Produtor.ProdutorApi.Pausar;
+import br.edu.ufcg.ic.akka.java.faulttolerance.Consumidor.ConsumidorApi.TempoEspera;
+import br.edu.ufcg.ic.akka.java.faulttolerance.Consumidor;
+import br.edu.ufcg.ic.akka.java.faulttolerance.Produtor;
+import br.edu.ufcg.ic.akka.java.faulttolerance.BufferService;
 
 import javax.swing.JTextField;
 import java.awt.FlowLayout;
@@ -23,7 +26,7 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class ProdutorConsumidorUI {
+public class ProdutorConsumidorUIFaultTolerance {
 
 	private JFrame frame;
 	private JTextField textField_espera_producao;
@@ -33,7 +36,7 @@ public class ProdutorConsumidorUI {
 	private ActorSystem system;
 	private ActorRef produtor;
 	private ActorRef consumidor;
-	private ActorRef buffer;
+	private ActorRef bufferService;
 	private ListenerBuffer listenerBuffer;
 
 	/**
@@ -43,7 +46,7 @@ public class ProdutorConsumidorUI {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ProdutorConsumidorUI window = new ProdutorConsumidorUI();
+					ProdutorConsumidorUIFaultTolerance window = new ProdutorConsumidorUIFaultTolerance();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -55,7 +58,7 @@ public class ProdutorConsumidorUI {
 	/**
 	 * Create the application.
 	 */
-	public ProdutorConsumidorUI() {
+	public ProdutorConsumidorUIFaultTolerance() {
 		initialize();
 	}
 
@@ -134,7 +137,7 @@ public class ProdutorConsumidorUI {
 					btnStopConsumidor.setText("Pause");
 				}
 				System.out.println("Mandando mensagem para pausar o consumidor");
-				consumidor.tell(new Consumidor.Pausar(), ActorRef.noSender());			
+				consumidor.tell(new Pausar(), ActorRef.noSender());			
 			}
 		});
 		panel_1.add(btnStopConsumidor);
@@ -152,7 +155,7 @@ public class ProdutorConsumidorUI {
 			public void actionPerformed(ActionEvent e) {
 				consumidor.tell(PoisonPill.getInstance(), ActorRef.noSender());
 				produtor.tell(PoisonPill.getInstance(), ActorRef.noSender());
-				buffer.tell(PoisonPill.getInstance(), ActorRef.noSender());
+				bufferService.tell(PoisonPill.getInstance(), ActorRef.noSender());
 				system.shutdown();
 			}
 		});
@@ -169,10 +172,10 @@ public class ProdutorConsumidorUI {
 		btnStopProdutor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(btnStopProdutor.getText().equals("Pause")){
-					produtor.tell(new Produtor.Pausar(), ActorRef.noSender());				
+					produtor.tell(new Pausar(), ActorRef.noSender());				
 					btnStopProdutor.setText("Resume");
 				}else{
-					produtor.tell(new Produtor.Pausar(), ActorRef.noSender());				
+					produtor.tell(new Pausar(), ActorRef.noSender());				
 					btnStopProdutor.setText("Pause");
 				}
 			}
@@ -187,21 +190,16 @@ public class ProdutorConsumidorUI {
 		System.out.println("Capacidade buffer " + Integer.parseInt(textField_capacidade_buffer.getText().toString()));
 		
 		system = ActorSystem.create("SystemProdutorConsumidor");
-		
-		buffer = system.actorOf(Props.create(Buffer.class, 
-						Integer.parseInt(textField_capacidade_buffer.getText().toString()),
-						listenerBuffer),"buffer");
-		
-		produtor = system.actorOf(Props.create(Produtor.class, buffer),"produtor");
-		consumidor = system.actorOf(Props.create(Consumidor.class, buffer),"consumidor");
-		
-		/*Informando o tempo de produção consumo em milisegundos(10E-3)*/
-		produtor.tell(new Consumidor.TempoEspera(Integer.parseInt(textField_espera_producao.getText().toString())),
+		produtor = system.actorOf(Props.create(Produtor.class),"produtor");
+		consumidor = system.actorOf(Props.create(Consumidor.class),"consumidor");
+		produtor.tell(new TempoEspera(Integer.parseInt(textField_espera_producao.getText().toString())),
 				ActorRef.noSender());
-		consumidor.tell(new Consumidor.TempoEspera(Integer.parseInt(textField_espera_consumo.getText().toString())),
+		consumidor.tell(new TempoEspera(Integer.parseInt(textField_espera_consumo.getText().toString())),
 				ActorRef.noSender());
 		
-		produtor.tell(new Produtor.Produzir(), ActorRef.noSender());
-		consumidor.tell(new Consumidor.Consumir(), ActorRef.noSender());
+		bufferService = system.actorOf(Props.create(BufferService.class, produtor, consumidor, 
+				Integer.parseInt(textField_capacidade_buffer.getText().toString()),
+				listenerBuffer), "bufferService");
+		bufferService.tell(BufferService.Start, ActorRef.noSender());
 	}
 }
