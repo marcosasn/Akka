@@ -1,6 +1,7 @@
 package br.edu.ufcg.ic.akka.java.faulttolerance;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.event.ChangeEvent;
@@ -65,7 +66,7 @@ public class Buffer extends UntypedActor{
 	}
 	
 	private LoggingAdapter log;
-	private List<Integer> numeros;
+	private LinkedList<Integer> numeros;
 	private static Integer tamanho;
 	private ActorRef produtor;
 	private ActorRef consumidor;
@@ -85,7 +86,7 @@ public class Buffer extends UntypedActor{
 	
 	public Buffer(int tamanho, ListenerBuffer listenerBuffer) {
 		this.log = Logging.getLogger(getContext().system(), this);
-    	this.numeros = new ArrayList<>();
+    	this.numeros = new LinkedList<>();
     	Buffer.tamanho = tamanho;
     	if(listenerBuffer != null){
 			listener = listenerBuffer;
@@ -114,7 +115,7 @@ public class Buffer extends UntypedActor{
         } else if (message instanceof Output){
         	consumidor = getSender();
             if(numeros.size() > 0) {
-            	int aux = numeros.remove(numeros.size() - 1);
+            	int aux = numeros.removeFirst();
             	//int aux = numeros.remove(0);
             	log.info("Removido int : " + aux + " from : " + getSender());
             	consumidor.tell(new BufferApi.Input(aux), getSelf());
