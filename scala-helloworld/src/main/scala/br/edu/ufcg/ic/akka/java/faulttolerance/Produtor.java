@@ -46,7 +46,7 @@ public class Produtor extends UntypedActor{
 
 		@Override
 		public void run() {
-			if(!pausado){
+			if(!pausado && buffer != null){
 				buffer.tell(new Input(produto), getSelf());
 				produto++;
 			}

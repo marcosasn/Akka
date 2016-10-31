@@ -47,7 +47,7 @@ public class Consumidor extends UntypedActor {
 
 		@Override
 		public void run() {
-			if(!pausado){
+			if(!pausado && buffer != null){
 				buffer.tell(new Output(), getSelf());
 			}
 		}		

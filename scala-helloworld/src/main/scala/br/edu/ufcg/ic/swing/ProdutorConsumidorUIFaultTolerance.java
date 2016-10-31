@@ -9,6 +9,9 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.PoisonPill;
@@ -189,7 +192,8 @@ public class ProdutorConsumidorUIFaultTolerance {
 		System.out.println("Espera consumo " + textField_espera_consumo.getText().toString());
 		System.out.println("Capacidade buffer " + Integer.parseInt(textField_capacidade_buffer.getText().toString()));
 		
-		system = ActorSystem.create("SystemProdutorConsumidor");
+		Config config = ConfigFactory.parseString("akka.loglevel = DEBUG \n" + "akka.actor.debug.lifecycle = on");
+		system = ActorSystem.create("SystemProdutorConsumidor", config);
 		produtor = system.actorOf(Props.create(Produtor.class),"produtor");
 		consumidor = system.actorOf(Props.create(Consumidor.class),"consumidor");
 		produtor.tell(new TempoEspera(Integer.parseInt(textField_espera_producao.getText().toString())),

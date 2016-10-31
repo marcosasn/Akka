@@ -69,6 +69,7 @@ public class BufferService extends UntypedActor {
 
 	@Override
 	public SupervisorStrategy supervisorStrategy() {
+		System.out.println("supervisor strategy run...");
 		return strategy;
 	}
 
@@ -85,23 +86,18 @@ public class BufferService extends UntypedActor {
 
 	@Override
 	public void onReceive(Object msg) {
-		/*if (msg.equals(Start)) {
-			getContext().system().scheduler().schedule(Duration.Zero(), Duration.create(1, "second"),
-					getSelf(), Do, getContext().dispatcher(), null);
-
-		} else if (msg.equals(Do)) {
-			initBuffer();
-		}*/ if(msg.equals(Start)){
+		if(msg.equals(Start)){
 			initBuffer();
 		} else if (msg instanceof Terminated) {
-			/*buffer = null;
+			buffer = null;
 			
 			produtor.tell(new UseBuffer(null), getSelf());
 			consumidor.tell(new UseBuffer(null), getSelf());
 			getContext().system().scheduler().scheduleOnce(Duration.create(10, "seconds"), getSelf(), Reconnect,
-					getContext().dispatcher(), null);*/
+					getContext().dispatcher(), null);
 		} else if (msg.equals(Reconnect)) {
-			//initBuffer();
+			System.out.println("reconecting buffer service...");
+			initBuffer();
 		} else {
 			unhandled(msg);
 		}
