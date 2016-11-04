@@ -1,8 +1,6 @@
 package br.edu.ufcg.ic.akka.java.faulttolerance;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.event.ChangeEvent;
 
@@ -15,7 +13,7 @@ import akka.japi.Creator;
 import br.edu.ufcg.ic.akka.java.faulttolerance.Buffer.BufferApi.Input;
 import br.edu.ufcg.ic.akka.java.faulttolerance.Buffer.BufferApi.Output;
 import br.edu.ufcg.ic.akka.java.faulttolerance.Buffer.BufferApi.BufferException;
-
+import br.edu.ufcg.ic.akka.java.faulttolerance.Buffer.BufferApi.GenerateBufferFailure;
 import br.edu.ufcg.ic.swing.ListenerBuffer;
 
 public class Buffer extends UntypedActor{
@@ -62,7 +60,11 @@ public class Buffer extends UntypedActor{
 		
 		public static class Empty {    
 	        public Empty() {}
-	    }		
+	    }
+		
+		public static class GenerateBufferFailure {    
+	        public GenerateBufferFailure() {}
+	    }
 	}
 	
 	private LoggingAdapter log;
@@ -98,13 +100,17 @@ public class Buffer extends UntypedActor{
 		listener.stateChanged(changeEvent);
 	}
 	
+	private void generateFailure(){
+		throw new BufferException("Simulated buffer failure");
+	}
+	
     public void onReceive(Object message) throws BufferException {
         if (message instanceof Input) {
         	produtor = getSender();
         	int numeroRecebido = ((Input)message).getNumero();
-        	if(numeroRecebido == 5 || numeroRecebido == 6 || numeroRecebido == 7 || numeroRecebido == 8){
+        	/*if(numeroRecebido == 5 || numeroRecebido == 6 || numeroRecebido == 7 || numeroRecebido == 8){
         		throw new BufferException("Simulated buffer failure " + numeroRecebido);
-        	}
+        	}*/
         	if(numeros.size() < tamanho) {
             	numeros.add(numeroRecebido);
             	log.info("Add int : " + numeroRecebido + " from : " + getSender());
@@ -124,7 +130,9 @@ public class Buffer extends UntypedActor{
             } else {
             	consumidor.tell(new BufferApi.Empty(), getSelf());
             }
-        } else 
+        } else if (message instanceof GenerateBufferFailure){
+        	generateFailure();        	
+        } else
         	unhandled(message);
     }
 }

@@ -2,7 +2,6 @@ package br.edu.ufcg.ic.akka.java.faulttolerance;
 
 import static akka.actor.SupervisorStrategy.escalate;
 import static akka.actor.SupervisorStrategy.restart;
-import static akka.actor.SupervisorStrategy.resume;
 
 import akka.actor.ActorRef;
 import akka.actor.OneForOneStrategy;
@@ -16,11 +15,11 @@ import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import akka.japi.Function;
 import br.edu.ufcg.ic.akka.java.faulttolerance.Buffer.BufferApi.BufferException;
+import br.edu.ufcg.ic.akka.java.faulttolerance.Buffer.BufferApi.GenerateBufferFailure;
 import br.edu.ufcg.ic.akka.java.faulttolerance.Produtor.ProdutorApi.Produzir;
 import br.edu.ufcg.ic.akka.java.faulttolerance.Produtor.ProdutorApi.UseBuffer;
 import br.edu.ufcg.ic.swing.ListenerBuffer;
 import br.edu.ufcg.ic.akka.java.faulttolerance.Consumidor.ConsumidorApi.Consumir;
-
 import scala.concurrent.duration.Duration;
 
 public class BufferService extends UntypedActor {
@@ -83,6 +82,10 @@ public class BufferService extends UntypedActor {
 			produtor.tell(new Produzir(), getSelf());
 			consumidor.tell(new Consumir(), getSelf());
 	}
+	
+	void forward(Object msg) {
+		buffer.forward(msg, getContext());
+	}
 
 	@Override
 	public void onReceive(Object msg) {
@@ -98,6 +101,8 @@ public class BufferService extends UntypedActor {
 		} else if (msg.equals(Reconnect)) {
 			System.out.println("reconecting buffer service...");
 			initBuffer();
+		} else if (msg instanceof GenerateBufferFailure){
+			forward(msg);
 		} else {
 			unhandled(msg);
 		}

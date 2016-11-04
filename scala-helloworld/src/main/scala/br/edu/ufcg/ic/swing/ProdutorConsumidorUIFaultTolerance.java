@@ -22,6 +22,7 @@ import br.edu.ufcg.ic.akka.java.faulttolerance.Consumidor.ConsumidorApi.TempoEsp
 import br.edu.ufcg.ic.akka.java.faulttolerance.Consumidor;
 import br.edu.ufcg.ic.akka.java.faulttolerance.Produtor;
 import br.edu.ufcg.ic.akka.java.faulttolerance.BufferService;
+import br.edu.ufcg.ic.akka.java.faulttolerance.Buffer.BufferApi.GenerateBufferFailure;
 
 import javax.swing.JTextField;
 import java.awt.FlowLayout;
@@ -163,6 +164,14 @@ public class ProdutorConsumidorUIFaultTolerance {
 			}
 		});
 		panel_3.add(btnStop);
+		
+		JButton btnGerarFalha = new JButton("Gerar falha");
+		btnGerarFalha.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				bufferService.tell(new GenerateBufferFailure(), ActorRef.noSender());
+			}
+		});
+		panel_3.add(btnGerarFalha);
 		
 		JLabel lblNewLabel = new JLabel("Tempo de espera produção");
 		panel.add(lblNewLabel);
