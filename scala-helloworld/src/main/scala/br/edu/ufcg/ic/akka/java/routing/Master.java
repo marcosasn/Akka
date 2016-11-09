@@ -12,6 +12,8 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import akka.routing.ActorRefRoutee;
 import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
@@ -27,11 +29,12 @@ final class Work implements Serializable {
 }
 
 final class Worker extends UntypedActor {
+	private LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
 	public void onReceive(Object msg) {
 		if (msg instanceof Work) {
 			//work
-			System.out.println("working...");
+        	log.info(" worked");
 		} else {
 			unhandled(msg);
 		}
