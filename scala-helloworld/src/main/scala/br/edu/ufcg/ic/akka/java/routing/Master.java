@@ -4,7 +4,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
@@ -27,6 +31,7 @@ final class Worker extends UntypedActor {
 	public void onReceive(Object msg) {
 		if (msg instanceof Work) {
 			//work
+			System.out.println("working...");
 		} else {
 			unhandled(msg);
 		}
@@ -57,5 +62,14 @@ public class Master extends UntypedActor {
 			router = router.addRoutee(new ActorRefRoutee(r));
 		} else
 			unhandled(msg);
+	}
+	
+	public static void main(String[] args) {
+		Config conf = ConfigFactory.load();
+		ActorSystem system = ActorSystem.create("MySystem", conf.getConfig("akka.actor"));
+		ActorRef master = system.actorOf(Props.create(Master.class),"master");
+		for(int i=0; i<5; i++){
+			master.tell(new Work("ok"), ActorRef.noSender());
+		}
 	}
 }
