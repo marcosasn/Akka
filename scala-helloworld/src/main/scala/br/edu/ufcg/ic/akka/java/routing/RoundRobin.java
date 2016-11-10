@@ -9,40 +9,34 @@ import com.typesafe.config.ConfigFactory;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import akka.actor.Terminated;
 import akka.actor.UntypedActor;
+import akka.routing.FromConfig;
 import akka.routing.RoundRobinGroup;
 import akka.routing.RoundRobinPool;
 
-final class Workers extends UntypedActor {
-	@Override
-	public void preStart() {
-		getContext().actorOf(Props.create(Worker.class), "w1");
-		getContext().actorOf(Props.create(Worker.class), "w2");
-		getContext().actorOf(Props.create(Worker.class), "w3");
-	}
-
-	@Override
-	public void onReceive(Object arg0) throws Throwable {
-		// TODO Auto-generated method stub
-	}
-}
-
-public class MasterGroup extends UntypedActor{
-	//by application.conf
+public class RoundRobin extends UntypedActor {
+	//RoundRobinPool deﬁned in conﬁguration:
+	ActorRef router1 = getContext().actorOf(Props.create(Worker.class),"router1");
+	//RoundRobinPool deﬁned in code
+	ActorRef router2 = getContext().actorOf(new RoundRobinPool(5).props(Props.create(Worker.class)),
+			"router2");
+	
+	//RoundRobinGroup deﬁned in conﬁguration:
 	ActorRef router3 = getContext().actorOf(Props.create(Worker.class), "router3");
-	//without application.conf configuration
+	
+	//RoundRobinGroup deﬁned in code:
 	List<String> paths = Arrays.asList("/user/workers/w1", "/user/workers/w2", "/user/workers/w3");
 	ActorRef router4 = getContext().actorOf(new RoundRobinGroup(paths).props(), "router4");
-	
-	public void onReceive(Object msg) {
+
+	@Override
+	public void onReceive(Object msg) throws Throwable {
 		if (msg instanceof Work) {
+			//router1.tell(msg, getSender());
+			//router2.tell(msg, getSender());
+			//router4.tell(msg, getSender());
 			router3.tell(msg, getSender());
-			router4.tell(msg, getSender());
-		} else if (msg instanceof Terminated) {
-			//Nothing
-		} else
-			unhandled(msg);
+
+		} else unhandled(msg);
 	}
 	
 	public static void main(String[] args) {
@@ -51,10 +45,10 @@ public class MasterGroup extends UntypedActor{
 		// workers created externally
 		system.actorOf(Props.create(Workers.class), "workers");
 				
-		ActorRef masterGroup = system.actorOf(Props.create(MasterGroup.class),"masterGroup");
+		ActorRef roundRobin = system.actorOf(Props.create(RoundRobin.class),"roundRobin");
 		
 		for(int i=0; i<5; i++){
-			masterGroup.tell(new Work("ok"), ActorRef.noSender());
+			roundRobin.tell(new Work("ok"), ActorRef.noSender());
 		}
 	}
 }
