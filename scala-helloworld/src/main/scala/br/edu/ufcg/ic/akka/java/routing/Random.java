@@ -8,8 +8,10 @@ import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import akka.routing.Broadcast;
 import akka.routing.FromConfig;
 import akka.routing.RandomGroup;
 import akka.routing.RandomPool;
@@ -39,7 +41,9 @@ public class Random extends UntypedActor {
 			//router7.tell(msg, getSender());
 			router8.tell(msg, getSender());
 
-		} else unhandled(msg);
+		} else if(msg instanceof PoisonPill){
+			router8.tell(new Broadcast(PoisonPill.getInstance()), getSender());
+		} else unhandled(msg); 
 	}
 	
 	public static void main(String[] args) {
@@ -53,5 +57,7 @@ public class Random extends UntypedActor {
 		for(int i=0; i<5; i++){
 			random.tell(new Work("ok"), ActorRef.noSender());
 		}
+		
+		random.tell(PoisonPill.getInstance(), ActorRef.noSender());
 	}
 }
