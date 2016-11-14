@@ -1,6 +1,5 @@
 package br.edu.ufcg.ic.akka.java.routing;
 
-import static akka.pattern.Patterns.ask;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -11,16 +10,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.Props;
 import akka.routing.Routee;
 import akka.routing.SeveralRoutees;
-import akka.testkit.JavaTestKit;
-import br.edu.ufcg.ic.akka.java.faulttolerance.Child;
-import br.edu.ufcg.ic.akka.java.faulttolerance.Supervisor;
-import scala.collection.generic.IndexedSeqFactory;
 import scala.collection.immutable.IndexedSeq;
-import scala.concurrent.Await;
+
 import akka.japi.Util;
 
 final class TestRoutee implements Routee {
