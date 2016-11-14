@@ -18,8 +18,10 @@ import akka.routing.SeveralRoutees;
 import akka.testkit.JavaTestKit;
 import br.edu.ufcg.ic.akka.java.faulttolerance.Child;
 import br.edu.ufcg.ic.akka.java.faulttolerance.Supervisor;
+import scala.collection.generic.IndexedSeqFactory;
 import scala.collection.immutable.IndexedSeq;
 import scala.concurrent.Await;
+import akka.japi.Util;
 
 final class TestRoutee implements Routee {
 	public final int n;
@@ -62,18 +64,20 @@ public class RedundancyTest{
 		for(int n = 1;n<=7;n++){
 			routeeList.add(new TestRoutee(n));
 		}
-		/*IndexedSeq<Routee> routees = immutableIndexedSeq(routeeList);
+		IndexedSeq<Routee> routees = Util.immutableIndexedSeq(routeeList);
 		SeveralRoutees r1 = (SeveralRoutees) logic.select("msg", routees);
 		assertEquals(r1.getRoutees().get(0), routeeList.get(0));
 		assertEquals(r1.getRoutees().get(1), routeeList.get(1));
 		assertEquals(r1.getRoutees().get(2), routeeList.get(2));
+		
 		SeveralRoutees r2 = (SeveralRoutees) logic.select("msg", routees);
 		assertEquals(r2.getRoutees().get(0), routeeList.get(3));
 		assertEquals(r2.getRoutees().get(1), routeeList.get(4));
 		assertEquals(r2.getRoutees().get(2), routeeList.get(5));
+		
 		SeveralRoutees r3 = (SeveralRoutees) logic.select("msg", routees);
 		assertEquals(r3.getRoutees().get(0), routeeList.get(6));
 		assertEquals(r3.getRoutees().get(1), routeeList.get(0));
-		assertEquals(r3.getRoutees().get(2), routeeList.get(1));*/
+		assertEquals(r3.getRoutees().get(2), routeeList.get(1));
 	}
 }
