@@ -23,7 +23,7 @@ public class MasterPool extends UntypedActor{
 	public void onReceive(Object msg) {
 		if (msg instanceof Work) {
 			router1.tell(msg, getSender());
-			router2.tell(msg, getSender());
+			//router2.tell(msg, getSender());
 		} else if (msg instanceof Terminated) {
 			//Nothing
 		} else

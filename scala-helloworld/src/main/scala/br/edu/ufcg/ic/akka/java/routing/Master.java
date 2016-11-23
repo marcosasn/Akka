@@ -34,7 +34,7 @@ final class Worker extends UntypedActor {
 	public void onReceive(Object msg) {
 		if (msg instanceof Work) {
 			//work
-        	log.info(" worked");
+        	log.info(this.toString() + " worked");
 		} else {
 			unhandled(msg);
 		}

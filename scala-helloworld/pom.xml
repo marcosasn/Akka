@@ -56,7 +56,6 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
-      <scope>test</scope>
     </dependency>
     <!--  dependency>
       <groupId>org.scala-tools.testing</groupId>
@@ -74,7 +73,6 @@
     	<groupId>com.typesafe.akka</groupId>
     	<artifactId>akka-testkit_2.11</artifactId>
     	<version>2.4.11</version>
-    	<scope>test</scope>
     </dependency>
   </dependencies>
 
