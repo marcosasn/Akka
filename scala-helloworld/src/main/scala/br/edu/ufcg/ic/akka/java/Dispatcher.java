@@ -13,7 +13,7 @@ public class Dispatcher {
 		Config conf = ConfigFactory.load();
 		ActorSystem system = ActorSystem.create("MySystem", conf.getConfig("akka.actor"));
 		ActorRef myactor = system.actorOf(Props.create(MyUntypedActor.class), "myactor");
-		System.out.println(system.settings());
+		//System.out.println(system.settings());
 		
 		// alternative way
 		ActorRef myactor3 = system.actorOf(Props.create(MyUntypedActor.class).withDispatcher("my-dispatcher"),
