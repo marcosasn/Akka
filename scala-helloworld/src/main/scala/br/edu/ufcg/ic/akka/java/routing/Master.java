@@ -35,6 +35,10 @@ final class Worker extends UntypedActor {
 		if (msg instanceof Work) {
 			//work
         	log.info(this.toString() + " worked");
+        	//send answer from routee
+        	//getSender().tell("reply", getSelf());
+        	//send answer from router
+        	//getSender().tell("reply", getContext().parent());
 		} else {
 			unhandled(msg);
 		}
