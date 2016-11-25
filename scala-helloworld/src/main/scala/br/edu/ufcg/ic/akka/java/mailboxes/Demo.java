@@ -14,14 +14,6 @@ import akka.event.LoggingAdapter;
 public class Demo extends UntypedActor{
 	LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 	
-	/*{
-		for (Object msg : new Object[] { "lowpriority", "lowpriority",
-		"highpriority", "pigdog", "pigdog2", "pigdog3", "highpriority",
-		PoisonPill.getInstance() }) {
-			getSelf().tell(msg, getSelf());
-		}
-	}*/
-	
 	public void onReceive(Object message) {
 		log.info(message.toString());
 	}
@@ -31,18 +23,23 @@ public class Demo extends UntypedActor{
 		Config conf = ConfigFactory.load();
 		ActorSystem system = ActorSystem.create("MySystem", conf.getConfig("akka.actor"));
 		//Don't forget! You have to set up the bridge actor name key to mailbox key 
-		//System.out.println(system.settings());
-		//ActorRef priomailboxactor = system.actorOf(Props.create(Demo.class), "priomailboxactor");
 		//ActorRef priomailboxactor = system.actorOf(Props.create(Demo.class).withMailbox("prio-mailbox"),"priomailboxactor");
 		
+		//Using dispatcher with mailbox
 		System.out.println(system.dispatchers().hasDispatcher("prio-dispatcher"));
-		ActorRef myActor = system.actorOf(Props.create(Demo.class).withDispatcher("prio-dispatcher"), "priomailboxactor");
+		ActorRef priomailboxactor = system.actorOf(Props.create(Demo.class).withDispatcher("prio-dispatcher"), "priomailboxactor");
 		
 		Object[] list = new Object[]{"lowpriority", "lowpriority","highpriority", "pigdog", "pigdog2", "pigdog3", "highpriority",
 				PoisonPill.getInstance()};
 		
 		for (Object msg : list) {
-			myActor.tell(msg, ActorRef.noSender());
+			priomailboxactor.tell(msg, ActorRef.noSender());
+		}
+		
+		System.out.println(system.mailboxes().lookup("prio-mailbox"));
+		ActorRef priomailboxactor2 = system.actorOf(Props.create(Demo.class).withMailbox("prio-mailbox"), "priomailboxactor2");
+		for (Object msg : list) {
+			priomailboxactor2.tell(msg, ActorRef.noSender());
 		}
 		
 		/*
