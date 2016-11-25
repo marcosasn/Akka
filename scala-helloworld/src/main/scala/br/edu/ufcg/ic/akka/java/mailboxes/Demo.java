@@ -23,7 +23,6 @@ public class Demo extends UntypedActor{
 		Config conf = ConfigFactory.load();
 		ActorSystem system = ActorSystem.create("MySystem", conf.getConfig("akka.actor"));
 		//Don't forget! You have to set up the bridge actor name key to mailbox key 
-		//ActorRef priomailboxactor = system.actorOf(Props.create(Demo.class).withMailbox("prio-mailbox"),"priomailboxactor");
 		
 		//Using dispatcher with mailbox
 		System.out.println(system.dispatchers().hasDispatcher("prio-dispatcher"));
@@ -33,13 +32,18 @@ public class Demo extends UntypedActor{
 				PoisonPill.getInstance()};
 		
 		for (Object msg : list) {
-			priomailboxactor.tell(msg, ActorRef.noSender());
+			//priomailboxactor.tell(msg, ActorRef.noSender());
 		}
 		
 		System.out.println(system.mailboxes().lookup("prio-mailbox"));
 		ActorRef priomailboxactor2 = system.actorOf(Props.create(Demo.class).withMailbox("prio-mailbox"), "priomailboxactor2");
 		for (Object msg : list) {
-			priomailboxactor2.tell(msg, ActorRef.noSender());
+			//priomailboxactor2.tell(msg, ActorRef.noSender());
+		}
+		
+		ActorRef priomailboxactor3 = system.actorOf(Props.create(Demo.class),"priomailboxactor3");
+		for (Object msg : list) {
+			priomailboxactor3.tell(msg, ActorRef.noSender());
 		}
 		
 		/*
