@@ -56,12 +56,16 @@ public class RedundancyGroup extends GroupBase {
 		}
 		List<String> paths = new ArrayList<String>();
 		for (int n = 1; n <= 10; n++) {
-			paths.add("/user/s" + n);
+			//paths.add("/user/s" + n);
+			paths.add("/s" + n);
 		}
 		ActorRef redundancy1 = system.actorOf(new RedundancyGroup(paths, 3).props(), "redundancy1");
-		redundancy1.tell("important", ActorRef.noSender());
+		for (int i = 0; i < 5; i++) {
+			redundancy1.tell("important", ActorRef.noSender());
+		}
 		
-		ActorRef redundancy2 = system.actorOf(new RedundancyGroup(conf).props(), "redundancy2");
+				
+		//ActorRef redundancy2 = system.actorOf(new RedundancyGroup(conf).props(), "redundancy2");
 		//redundancy2.tell("very important", ActorRef.noSender());
 		
 		//ActorRef redundancy2 = system.actorOf(new RedundancyGroup(conf.getConfig("akka.actor")).props(), "redundancy2");

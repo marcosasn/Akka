@@ -454,9 +454,10 @@ public class FaultHandlingDocSample {
 				Long value = db.load(get.key);
 				getSender().tell(new Entry(get.key, value == null ?
 						Long.valueOf(0L) : value), getSelf());
-			} else {
+			} else if (msg.equals("important")){
+				log.debug(getSelf().toString() + " got important");
+			} else 
 				unhandled(msg);
-			}
 		}
 	}
 
