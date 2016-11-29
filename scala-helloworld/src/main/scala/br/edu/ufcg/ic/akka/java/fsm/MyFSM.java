@@ -51,14 +51,17 @@ public class MyFSM extends MyFSMBase {
 	@Override
 	public void onReceive(Object o) throws Throwable {
 		if (getState() == State.IDLE) {
-			if (o instanceof SetTarget)
+			if (o instanceof SetTarget){
 				init(((SetTarget) o).ref);
+				log.info("SetTarget recebido, inciando FSM");
+			}
 			else
 				whenUnhandled(o);
 		} else if (getState() == State.ACTIVE) {
-			if (o == MyFSMApi.flush)
+			if (o == MyFSMApi.flush) {
 				setState(State.IDLE);
-			else
+				log.info("Flush recebido, FSM estado IDLE");
+			} else
 				whenUnhandled(o);
 		}
 	}
@@ -67,6 +70,7 @@ public class MyFSM extends MyFSMBase {
 		if (o instanceof Queue && isInitialized()) {
 			enqueue(((Queue) o).o);
 			setState(State.ACTIVE);
+			log.info("fila recebida, FSM estado ACTIVE");
 		} else {
 			log.warning("received unknown message {} in state {}", o, getState());
 		}
