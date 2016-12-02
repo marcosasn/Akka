@@ -37,7 +37,7 @@ public class MasterGroup extends UntypedActor{
 	
 	public void onReceive(Object msg) {
 		if (msg instanceof Work) {
-			router3.tell(msg, getSender());
+			//router3.tell(msg, getSender());
 			router4.tell(msg, getSender());
 		} else if (msg instanceof Terminated) {
 			//Nothing

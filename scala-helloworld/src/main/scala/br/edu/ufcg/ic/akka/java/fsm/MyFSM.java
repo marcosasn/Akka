@@ -2,11 +2,17 @@ package br.edu.ufcg.ic.akka.java.fsm;
 
 import java.util.List;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import br.edu.ufcg.ic.akka.java.fsm.MyFSM.MyFSMApi.Queue;
 import br.edu.ufcg.ic.akka.java.fsm.MyFSM.MyFSMApi.SetTarget;
+import br.edu.ufcg.ic.akka.java.MyUntypedActor;
 import br.edu.ufcg.ic.akka.java.fsm.MyFSM.MyFSMApi.Batch;
 
 public class MyFSM extends MyFSMBase {
@@ -74,5 +80,17 @@ public class MyFSM extends MyFSMBase {
 		} else {
 			log.warning("received unknown message {} in state {}", o, getState());
 		}
+	}
+	
+	public static void main(String[] args) {
+		Config config = ConfigFactory.load();
+		ActorSystem system = ActorSystem.create("MySystem", config.getConfig("akka.actor"));
+		ActorRef myFSM = system.actorOf(Props.create(MyFSM.class), "myFSM");
+		ActorRef target = system.actorOf(Props.create(MyUntypedActor.class), "target");
+		
+		myFSM.tell("new SetTarget(target)", ActorRef.noSender());
+		myFSM.tell(new SetTarget(target), ActorRef.noSender());
+		myFSM.tell(new Queue(new Object()), ActorRef.noSender());
+		myFSM.tell(MyFSM.MyFSMApi.flush, ActorRef.noSender());	
 	}
 }
