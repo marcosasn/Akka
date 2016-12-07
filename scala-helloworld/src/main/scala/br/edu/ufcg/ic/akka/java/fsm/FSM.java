@@ -32,24 +32,27 @@ public class FSM extends FSMBase {
 	private final LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
 	@Override
-	protected void transition(State old, State next) {
-		/*if (old == State.UP) up();
-		else if (old == State.DOWN) down();*/
+	protected void transition(State old, String event, State next) {
+		if (old == State.UP && event.equals("up")) {
+			up();
+			setState(State.DOWN);
+		}else if (old == State.DOWN  && event.equals("down")) {
+			down();
+			setState(State.UP);
+		}
 	}
 
 	@Override
 	public void onReceive(Object o) throws Throwable {
 		if (getState() == State.UP) {
 			if (o instanceof UP){
-				setState(State.DOWN);
-				up();
+				transition(State.UP,"up",State.DOWN);
 			}
 			else
 				whenUnhandled(o);
 		} else if (getState() == State.DOWN) {
 			if (o instanceof DOWN) {
-				setState(State.UP);
-				down();
+				transition(State.DOWN,"down",State.UP);
 			} else
 				whenUnhandled(o);
 		}

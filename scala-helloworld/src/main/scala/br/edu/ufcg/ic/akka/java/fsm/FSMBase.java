@@ -19,7 +19,7 @@ public abstract class FSMBase extends UntypedActor {
 
 	protected void setState(State s) {
 		if (state != s) {
-			transition(state, s);
+			//transition(state, s);
 			state = s;
 		}
 	}
@@ -35,5 +35,5 @@ public abstract class FSMBase extends UntypedActor {
 	/**	And finally
 		the callbacks (only one in this example: react to state change)
 	*/
-	abstract protected void transition(State old, State next);
+	abstract protected void transition(State old, String event, State next);
 }
