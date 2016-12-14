@@ -8,10 +8,10 @@ import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
-import br.edu.ufcg.ic.akka.java.faulttolerance.Buffer.BufferApi.Input;
-import br.edu.ufcg.ic.akka.java.faulttolerance.Buffer.BufferApi.Output;
-import br.edu.ufcg.ic.akka.java.faulttolerance.Buffer.BufferApi.BufferException;
-import br.edu.ufcg.ic.akka.java.faulttolerance.Buffer.BufferApi.GenerateBufferFailure;
+import br.edu.ufcg.ic.akka.java.fsm.Buffer.BufferApi.Input;
+import br.edu.ufcg.ic.akka.java.fsm.Buffer.BufferApi.Output;
+import br.edu.ufcg.ic.akka.java.fsm.Buffer.BufferApi.BufferException;
+import br.edu.ufcg.ic.akka.java.fsm.Buffer.BufferApi.GenerateBufferFailure;
 import br.edu.ufcg.ic.swing.ListenerBuffer;
 
 public class Buffer extends BaseBuffer {
@@ -112,7 +112,8 @@ public class Buffer extends BaseBuffer {
 
 				addNumber(numeroRecebido);
 				transition(State.SIZE_0, message);
-				log.info("Add int : " + numeroRecebido + " from : " + produtor);
+				System.out.println("Add int : " + numeroRecebido + " from : " + produtor + " state : " + getState());
+				//log.info();
 				fireChangeEventPerformed();
 				
 			} else if (message instanceof GenerateBufferFailure) {
@@ -127,14 +128,16 @@ public class Buffer extends BaseBuffer {
 				int numeroRecebido = ((Input) message).getNumero();
 				addNumber(numeroRecebido);
 				transition(State.SIZE_1, message);
-				log.info("Add int : " + numeroRecebido + " from : " + produtor);
+				System.out.println("Add int : " + numeroRecebido + " from : " + produtor + " state : " + getState());
+				//log.info("Add int : " + numeroRecebido + " from : " + produtor + " state : " + getState());
 				fireChangeEventPerformed();
 				
 			} else if (message instanceof Output) {
 				consumidor = getSender();
 				int aux = removeFirst();
 				transition(State.SIZE_1, message);
-				log.info("Removido int : " + aux + " from : " + getSender());
+				System.out.println("Removido int : " + aux + " from : " + consumidor + " state : " + getState());
+				//log.info("Removido int : " + aux + " from : " + consumidor + " state: " + getState());
 				consumidor.tell(new BufferApi.Input(aux), getSelf());
 				fireChangeEventPerformed();
 				
@@ -148,7 +151,8 @@ public class Buffer extends BaseBuffer {
 				consumidor = getSender();
 				int aux = removeFirst();
 				transition(State.SIZE_2, message);
-				log.info("Removido int : " + aux + " from : " + getSender());
+				System.out.println("Removido int : " + aux + " from : " + consumidor + " state : " + getState());
+//				log.info("Removido int : " + aux + " from : " + consumidor + " state: " + getState());
 				consumidor.tell(new BufferApi.Input(aux), getSelf());
 				fireChangeEventPerformed();
 				

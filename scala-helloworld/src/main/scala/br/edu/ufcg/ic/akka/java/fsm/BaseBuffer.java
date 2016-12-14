@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import akka.actor.UntypedActor;
-import br.edu.ufcg.ic.akka.java.fsm.Buffer.BufferApi;
 
 public abstract class BaseBuffer extends UntypedActor {
 	/*

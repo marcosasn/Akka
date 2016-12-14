@@ -8,12 +8,12 @@ import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
-import br.edu.ufcg.ic.akka.java.faulttolerance.Buffer.BufferApi.Full;
-import br.edu.ufcg.ic.akka.java.faulttolerance.Buffer.BufferApi.Input;
-import br.edu.ufcg.ic.akka.java.faulttolerance.Consumidor.ConsumidorApi.TempoEspera;
-import br.edu.ufcg.ic.akka.java.faulttolerance.Produtor.ProdutorApi.Pausar;
-import br.edu.ufcg.ic.akka.java.faulttolerance.Produtor.ProdutorApi.Produzir;
-import br.edu.ufcg.ic.akka.java.faulttolerance.Produtor.ProdutorApi.UseBuffer;
+import br.edu.ufcg.ic.akka.java.fsm.Buffer.BufferApi.Full;
+import br.edu.ufcg.ic.akka.java.fsm.Buffer.BufferApi.Input;
+import br.edu.ufcg.ic.akka.java.fsm.Consumidor.ConsumidorApi.TempoEspera;
+import br.edu.ufcg.ic.akka.java.fsm.Produtor.ProdutorApi.Pausar;
+import br.edu.ufcg.ic.akka.java.fsm.Produtor.ProdutorApi.Produzir;
+import br.edu.ufcg.ic.akka.java.fsm.Produtor.ProdutorApi.UseBuffer;
 
 public class Produtor extends BaseProdutor{
 	
@@ -70,34 +70,41 @@ public class Produtor extends BaseProdutor{
     	pausado = false;
     	produto = 0;
     	espera = 0;
+    	init();
     }
 	
     public void onReceive(Object message) throws Exception {
-    	if (message instanceof UseBuffer){
-        	buffer = ((UseBuffer)message).buffer;
-        } else if (message instanceof Produzir){
-        	if(!pausado && buffer != null){
-        		startProduction();
-        	}
-        }
-        else if (message instanceof Full) {
-        	System.out.println("Buffer cheio. input perdido: " + ((Full) message).getInput());
-            
-        }  
-        else if (message instanceof Pausar) {
-			if(pausado){
-				pausado = false;
-				System.out.println("O produtor foi resumido...");
-			}else{
-				pausado = true;
-				System.out.println("O produtor foi pausado...");
-			}
-        }
-        else if (message instanceof TempoEspera) {
-			espera = ((TempoEspera)message).getTempo();
+    	if (getState() == State.INPUT) {
+    		if (message instanceof UseBuffer){
+            	buffer = ((UseBuffer)message).buffer;
+            } 
+    		else if (message instanceof Produzir){
+            	if(!pausado && buffer != null){
+    				transition(State.INPUT, new Input(0));
+            		startProduction();
+            	}
+            }
+            else if (message instanceof Full) {
+            	System.out.println("Buffer cheio. input perdido: " + ((Full) message).getInput());
+                
+            }  
+            else if (message instanceof Pausar) {
+    			if(pausado){
+    				pausado = false;
+    				System.out.println("O produtor foi resumido...");
+    			}else{
+    				pausado = true;
+    				System.out.println("O produtor foi pausado...");
+    			}
+            }
+            else if (message instanceof TempoEspera) {
+    			espera = ((TempoEspera)message).getTempo();
+    			System.out.println("O produtor recebeu tempo de espera...");
+    		}
+    		else 
+    			whenUnhandled(message);
 		}
-		else 
-			unhandled(message);
+	
     }
 
 	private void startProduction() {		
@@ -105,12 +112,18 @@ public class Produtor extends BaseProdutor{
 			temporizador.scheduleAtFixedRate(task, 10, espera);
 		} catch (IllegalStateException e) {
 		}
+		/*buffer.tell(new Input(produto), getSelf());
+		produto++;*/
 	}
 
 	@Override
-	protected void transition(State old, String event) {
-		if (old == State.INPUT) {
+	protected void transition(State old, Input event) {
+		if (old == State.INPUT && event instanceof Input) {
 			setState(State.INPUT);
 		}		
+	}
+	
+	private void whenUnhandled(Object o) {
+		log.warning("received unknown message {} in state {}", o, getState());
 	}
 }
