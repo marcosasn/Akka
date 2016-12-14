@@ -35,5 +35,5 @@ public abstract class BaseProdutor extends UntypedActor {
 	/**	And finally
 		the callbacks (only one in this example: react to state change)
 	*/
-	abstract protected void transition(State old, String event, State next);
+	abstract protected void transition(State old, String event);
 }

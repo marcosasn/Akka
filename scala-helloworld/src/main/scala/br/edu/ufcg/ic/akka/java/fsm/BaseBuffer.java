@@ -1,9 +1,10 @@
 package br.edu.ufcg.ic.akka.java.fsm;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import akka.actor.UntypedActor;
+import br.edu.ufcg.ic.akka.java.fsm.Buffer.BufferApi;
 
 public abstract class BaseBuffer extends UntypedActor {
 	/*
@@ -13,13 +14,15 @@ public abstract class BaseBuffer extends UntypedActor {
 		SIZE_0, SIZE_1, SIZE_2;
 	}
 
-	private State state = State.SIZE_0;
-	private List<Integer> numbers = new ArrayList<Integer>();
+	private State state;
+	private LinkedList<Integer> numbers;
 
 	/*
 	 * Then come all the mutator methods:
 	 */
 	protected void init() {
+		state = State.SIZE_0;
+		numbers = new LinkedList<Integer>();
 	}
 
 	protected void setState(State s) {
@@ -32,6 +35,10 @@ public abstract class BaseBuffer extends UntypedActor {
 	protected void addNumber(Integer i) {
 		numbers.add(i);
 	}
+	
+	protected Integer removeFirst(){
+		return numbers.removeFirst();
+	}
 
 	/**
 	 * Here are the interrogation methods:
@@ -43,10 +50,18 @@ public abstract class BaseBuffer extends UntypedActor {
 	protected List<Integer> getNumbers() {
 		return numbers;
 	}
+	
+	protected boolean isFull(){
+		return numbers.size() == 2;
+	}
+	
+	protected boolean isEmpty(){
+		return numbers.isEmpty();
+	}
 
 	/**
 	 * And finally the callbacks (only one in this example: react to state
 	 * change)
 	 */
-	abstract protected void transition(State old, String event, State next);
+	abstract protected void transition(State old, Object event);
 }
