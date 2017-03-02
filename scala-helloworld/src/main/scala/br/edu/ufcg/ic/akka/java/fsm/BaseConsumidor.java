@@ -1,6 +1,7 @@
 package br.edu.ufcg.ic.akka.java.fsm;
 
 import akka.actor.UntypedActor;
+import br.edu.ufcg.ic.akka.java.fsm.Buffer.BufferApi.Output;
 
 public abstract class BaseConsumidor extends UntypedActor {
 	/*
@@ -10,12 +11,14 @@ public abstract class BaseConsumidor extends UntypedActor {
 		OUTPUT;
 	}
 
-	private State state = State.OUTPUT;
+	private State state;
 
 	/*
 	 * Then come all the mutator methods:
 	 */
-	protected void init() {	}
+	protected void init() {
+		state = State.OUTPUT;	
+	}
 
 	protected void setState(State s) {
 		if (state != s) {
@@ -35,5 +38,5 @@ public abstract class BaseConsumidor extends UntypedActor {
 	/**	And finally
 		the callbacks (only one in this example: react to state change)
 	*/
-	abstract protected void transition(State old, String event, State next);
+	abstract protected void transition(State old, Output event);
 }
