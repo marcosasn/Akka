@@ -3,15 +3,26 @@ package br.edu.ufcg.ic.akka.channel;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import akka.japi.Creator;
+import br.edu.ufcg.ic.akka.channel.Base.State;
+import br.edu.ufcg.ic.akka.channel.Channel.InputEvent;
+import br.edu.ufcg.ic.akka.channel.Channel.OutputEvent;
 
-public class ChannelWriter extends UntypedActor{
+public class ChannelWriter extends Base{
+	
+	static public class StartWrite{
+		
+	}
 
 	private static ActorRef channel;
+	private final LoggingAdapter log;
 	
 	public ChannelWriter(ActorRef channel) {
 		super();
 		this.channel = channel;
+		log = Logging.getLogger(getContext().system(), this);
 	}
 
 	public static Props props() {
@@ -26,9 +37,6 @@ public class ChannelWriter extends UntypedActor{
         });
     }
 	
-	static public class StartWrite{
-		
-	}
 	public void writeOnChannel(ActorRef channel){
 		if(channel != null){
 			channel.tell(new Channel.InputEvent(2), getSelf());
@@ -37,9 +45,13 @@ public class ChannelWriter extends UntypedActor{
 
 	@Override
 	public void onReceive(Object message) throws Throwable {
-		if(message instanceof StartWrite){
-			writeOnChannel(channel);
-		}	
+		if(getState() == State.state_input){
+			if(message instanceof StartWrite){
+				writeOnChannel(channel);
+			} else {
+				whenUnhandled(message);
+			}
+		}
 	}
 
 	public ActorRef getChannel() {
@@ -49,5 +61,12 @@ public class ChannelWriter extends UntypedActor{
 	public void setChannel(ActorRef channel) {
 		this.channel = channel;
 	}
-	
+
+	@Override
+	protected void transition(State old, Object event, State next) {
+		if (old == State.state_input && event instanceof StartWrite) {
+			log("input... state: " + getState());
+			setState(State.state_input);
+		}
+	}
 }
