@@ -49,8 +49,16 @@ public class Channel extends Base {
 				System.out.println("channel: input event received");
 				leitores.stream().forEach(ar -> ar.tell(new OutputEvent(valor), getSelf()));
 				leitores.clear();
-			} else { 				
-				whenUnhandled(message);
+				transition(getState(), message);
+			} else if (message instanceof OutputEvent){	
+				//syso(message.toString());
+				//if (message instanceof OutputEvent){
+					//quem mandar mensagem de output precisa ficar esperando ate que um input venha
+					//assim, essa mensagem coloca os leitores na fila de espera e nao manda resposta 
+					//para eles
+					System.out.println("channel: read channel request received. waiting for one write/input event");
+					leitores.add(getSender());
+					transition(getState(), message);
 			}
 		} else if (getState() == State.state_output){
 			if (message instanceof OutputEvent){
@@ -59,20 +67,23 @@ public class Channel extends Base {
 			//para eles
 			System.out.println("channel: read channel request received. waiting for one write/input event");
 			leitores.add(getSender());
+			transition(getState(), message);
 			} else { 				
-				whenUnhandled(message);
+				syso(message.toString());
 			}
 		}
 	}
 
 	@Override
-	protected void transition(State old, Object event, State next) {
+	protected void transition(State old, Object event) {
 		if (old == State.state_input && event instanceof InputEvent) {
-			log("input... state: " + getState());
-			setState(State.state_output);
+			syso("input... state: " + getState());
+			setState(State.stop);
 		}else if (old == State.state_output  && event instanceof OutputEvent) {
-			log("output... state: " + getState());
+			syso("output... state: " + getState());
 			setState(State.state_input);
-		}	
+		} else if(old == State.state_input && event instanceof OutputEvent){
+			setState(State.state_input);
+		}
 	}
 }

@@ -1,5 +1,8 @@
 package br.edu.ufcg.ic.akka.channel;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
@@ -7,7 +10,9 @@ import akka.actor.Props;
 public class TestChanSync {
 
 	public static void main(String[] args) throws InterruptedException {
-        ActorSystem system = ActorSystem.create("MySystem");
+		Config config = ConfigFactory.load();
+		ActorSystem system = ActorSystem.create("MySystem", config.getConfig("akka.actor"));
+        //ActorSystem system = ActorSystem.create("MySystem");
         //cria channels, readers and writers
         ActorRef channel = system.actorOf(Props.create(Channel.class), "channel");
         ActorRef reader = system.actorOf(Props.create(ChannelReader.class,channel), "reader");

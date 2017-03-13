@@ -48,8 +48,9 @@ public class ChannelWriter extends Base{
 		if(getState() == State.state_input){
 			if(message instanceof StartWrite){
 				writeOnChannel(channel);
+				transition(getState(), message);
 			} else {
-				whenUnhandled(message);
+				syso((String)message);
 			}
 		}
 	}
@@ -63,9 +64,9 @@ public class ChannelWriter extends Base{
 	}
 
 	@Override
-	protected void transition(State old, Object event, State next) {
+	protected void transition(State old, Object event) {
 		if (old == State.state_input && event instanceof StartWrite) {
-			log("input... state: " + getState());
+			syso("input... state: " + getState());
 			setState(State.state_input);
 		}
 	}

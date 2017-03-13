@@ -13,7 +13,6 @@ public abstract class Base extends UntypedActor {
 	}
 
 	private State state = State.state_input;
-	private final LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
 	/*
 	 * Then come all the mutator methods:
@@ -38,13 +37,9 @@ public abstract class Base extends UntypedActor {
 	/**	And finally
 		the callbacks (only one in this example: react to state change)
 	*/
-	abstract protected void transition(State old, Object event, State next);
+	abstract protected void transition(State old, Object event);	
 	
-	protected void whenUnhandled(Object o) {
-		log.warning("received unknown message {} in state {}", o, getState());
-	}
-	
-	protected void log(String msg){
-		log.info(msg);
+	protected void syso(String msg){
+		System.out.println(msg);
 	}
 }
