@@ -1,5 +1,8 @@
 package br.edu.ufcg.ic.akka.channel;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -22,14 +25,15 @@ public class TestChanSync {
         
         reader.tell(new ChannelReader.StartReader(), ActorRef.noSender()); //inicia um reader
         reader2.tell(new ChannelReader.StartReader(), ActorRef.noSender());
-        reader3.tell(new ChannelReader.StartReader(), ActorRef.noSender());
-        
+        reader3.tell(new ChannelReader.StartReader(), ActorRef.noSender());  
+  		
         //espera um pouco para todos os atores iniciarem
         Thread.sleep(1000);
         
         System.out.println("iniciando o writer");
         //inicia o writer e ele comunica o output no canal que vai destravar os leitores
         writer.tell(new ChannelWriter.StartWrite(), ActorRef.noSender());
+        Thread.sleep(1000);
         
         system.terminate();
 	}

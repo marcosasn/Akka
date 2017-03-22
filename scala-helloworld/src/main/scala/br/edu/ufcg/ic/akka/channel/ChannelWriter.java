@@ -66,7 +66,7 @@ public class ChannelWriter extends Base{
 	@Override
 	protected void transition(State old, Object event) {
 		if (old == State.state_input && event instanceof StartWrite) {
-			syso("input... state: " + getState());
+			//syso("input... state: " + getState());
 			setState(State.state_input);
 		}
 	}

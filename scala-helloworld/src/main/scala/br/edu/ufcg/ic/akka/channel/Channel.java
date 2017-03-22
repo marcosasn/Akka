@@ -4,71 +4,91 @@ import java.util.ArrayList;
 import java.util.List;
 
 import akka.actor.ActorRef;
-import akka.actor.UntypedActor;
-import akka.event.Logging;
-import akka.event.LoggingAdapter;
+import akka.actor.Props;
+import akka.routing.Broadcast;
+import akka.routing.BroadcastGroup;
+import akka.routing.BroadcastPool;
 
 public class Channel extends Base {
 
-	//por enquanto os interessados nesse evento vao se inscrever no canal como leitores
+	// por enquanto os interessados nesse evento vao se inscrever no canal como
+	// leitores
 	private List<ActorRef> leitores = new ArrayList<ActorRef>();
-	
-	static public class InputEvent { //alguem escreveu no canal    
+	private ActorRef router;
+	private List<String> paths = new ArrayList<String>();
+
+	static public class InputEvent { // alguem escreveu no canal
 		private int valor;
+
 		public InputEvent(int valor) {
-			this.valor= valor;
+			this.valor = valor;
 		}
+
 		public int getValor() {
 			return valor;
 		}
+
 		public void setValor(int valor) {
 			this.valor = valor;
 		}
-		
-    }
-	static public class OutputEvent { //alguem escreveu no canal    
+
+	}
+
+	static public class OutputEvent { // alguem escreveu no canal
 		private int valor;
+
 		public OutputEvent(int valor) {
-			this.valor= valor;
+			this.valor = valor;
 		}
+
 		public int getValor() {
 			return valor;
 		}
+
 		public void setValor(int valor) {
 			this.valor = valor;
 		}
-    }
-	
+	}
+
 	@Override
 	public void onReceive(Object message) throws Throwable {
 		if (getState() == State.state_input) {
-			if(message instanceof InputEvent){
-				//se alguem escreveu no canal entao tem que avisar a todos os leitores (ou pegar os 
-				//leitores desse evento em algum lugar e avisar a eles)
+			if (message instanceof InputEvent) {
+				// se alguem escreveu no canal entao tem que avisar a todos os
+				// leitores (ou pegar os
+				// leitores desse evento em algum lugar e avisar a eles)
 				int valor = ((InputEvent) message).getValor();
 				System.out.println("channel: input event received");
-				leitores.stream().forEach(ar -> ar.tell(new OutputEvent(valor), getSelf()));
-				leitores.clear();
+				//TODO
+				router = getContext().actorOf(new BroadcastGroup(paths).props(), "router");
+				router.tell(new Broadcast(new Channel.OutputEvent(valor)), getSelf());
+				/*leitores.stream().forEach(ar -> ar.tell(new Channel.OutputEvent(valor), getSelf()));
+				leitores.clear();*/
 				transition(getState(), message);
-			} else if (message instanceof OutputEvent){	
-				//syso(message.toString());
-				//if (message instanceof OutputEvent){
-					//quem mandar mensagem de output precisa ficar esperando ate que um input venha
-					//assim, essa mensagem coloca os leitores na fila de espera e nao manda resposta 
-					//para eles
-					System.out.println("channel: read channel request received. waiting for one write/input event");
-					leitores.add(getSender());
-					transition(getState(), message);
+			} else if (message instanceof OutputEvent) {
+				// syso(message.toString());
+				// if (message instanceof OutputEvent){
+				// quem mandar mensagem de output precisa ficar esperando ate
+				// que um input venha
+				// assim, essa mensagem coloca os leitores na fila de espera e
+				// nao manda resposta
+				// para eles
+				System.out.println("channel: read channel request received. waiting for one write/input event");
+				leitores.add(getSender());
+				paths.add("/user/" + getSender().path().name());
+				transition(getState(), message);
 			}
-		} else if (getState() == State.state_output){
-			if (message instanceof OutputEvent){
-			//quem mandar mensagem de output precisa ficar esperando ate que um input venha
-			//assim, essa mensagem coloca os leitores na fila de espera e nao manda resposta 
-			//para eles
-			System.out.println("channel: read channel request received. waiting for one write/input event");
-			leitores.add(getSender());
-			transition(getState(), message);
-			} else { 				
+		} else if (getState() == State.state_output) {
+			if (message instanceof OutputEvent) {
+				// quem mandar mensagem de output precisa ficar esperando ate
+				// que um input venha
+				// assim, essa mensagem coloca os leitores na fila de espera e
+				// nao manda resposta
+				// para eles
+				System.out.println("channel: read channel request received. waiting for one write/input event");
+				leitores.add(getSender());
+				transition(getState(), message);
+			} else {
 				syso(message.toString());
 			}
 		}
@@ -77,12 +97,12 @@ public class Channel extends Base {
 	@Override
 	protected void transition(State old, Object event) {
 		if (old == State.state_input && event instanceof InputEvent) {
-			syso("input... state: " + getState());
+			//syso("input... state: " + getState());
 			setState(State.stop);
-		}else if (old == State.state_output  && event instanceof OutputEvent) {
-			syso("output... state: " + getState());
+		} else if (old == State.state_output && event instanceof OutputEvent) {
+			//syso("output... state: " + getState());
 			setState(State.state_input);
-		} else if(old == State.state_input && event instanceof OutputEvent){
+		} else if (old == State.state_input && event instanceof OutputEvent) {
 			setState(State.state_input);
 		}
 	}
