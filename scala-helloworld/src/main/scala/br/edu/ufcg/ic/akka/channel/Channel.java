@@ -11,9 +11,6 @@ import akka.routing.BroadcastPool;
 
 public class Channel extends Base {
 
-	// por enquanto os interessados nesse evento vao se inscrever no canal como
-	// leitores
-	private List<ActorRef> leitores = new ArrayList<ActorRef>();
 	private ActorRef router;
 	private List<String> paths = new ArrayList<String>();
 
@@ -59,11 +56,8 @@ public class Channel extends Base {
 				// leitores desse evento em algum lugar e avisar a eles)
 				int valor = ((InputEvent) message).getValor();
 				System.out.println("channel: input event received");
-				//TODO
 				router = getContext().actorOf(new BroadcastGroup(paths).props(), "router");
 				router.tell(new Broadcast(new Channel.OutputEvent(valor)), getSelf());
-				/*leitores.stream().forEach(ar -> ar.tell(new Channel.OutputEvent(valor), getSelf()));
-				leitores.clear();*/
 				transition(getState(), message);
 			} else if (message instanceof OutputEvent) {
 				// syso(message.toString());
@@ -74,7 +68,6 @@ public class Channel extends Base {
 				// nao manda resposta
 				// para eles
 				System.out.println("channel: read channel request received. waiting for one write/input event");
-				leitores.add(getSender());
 				paths.add("/user/" + getSender().path().name());
 				transition(getState(), message);
 			}
@@ -86,7 +79,6 @@ public class Channel extends Base {
 				// nao manda resposta
 				// para eles
 				System.out.println("channel: read channel request received. waiting for one write/input event");
-				leitores.add(getSender());
 				transition(getState(), message);
 			} else {
 				syso(message.toString());

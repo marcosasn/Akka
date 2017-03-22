@@ -12,17 +12,13 @@ import br.edu.ufcg.ic.akka.channel.Channel.OutputEvent;
 
 public class ChannelWriter extends Base{
 	
-	static public class StartWrite{
-		
-	}
+	static public class StartWrite{	}
 
 	private static ActorRef channel;
-	private final LoggingAdapter log;
 	
 	public ChannelWriter(ActorRef channel) {
 		super();
-		this.channel = channel;
-		log = Logging.getLogger(getContext().system(), this);
+		ChannelWriter.channel = channel;
 	}
 
 	public static Props props() {
@@ -60,7 +56,7 @@ public class ChannelWriter extends Base{
 	}
 
 	public void setChannel(ActorRef channel) {
-		this.channel = channel;
+		ChannelWriter.channel = channel;
 	}
 
 	@Override

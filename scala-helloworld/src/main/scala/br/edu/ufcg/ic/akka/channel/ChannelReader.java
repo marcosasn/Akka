@@ -44,7 +44,6 @@ public class ChannelReader extends BaseOut {
 	public void onReceive(Object message) throws Throwable {
 		if (getState() == State.state_output) {
 			if (message instanceof OutputEvent) {
-				//TODO não executado...
 				// alguem escreveu no canal
 				int valor = ((OutputEvent) message).getValor();
 				System.out.println("Leitor " + getSelf().path().name() + " leu valor " + valor);
@@ -76,7 +75,7 @@ public class ChannelReader extends BaseOut {
 	}
 
 	public void setChannel(ActorRef channel) {
-		this.channel = channel;
+		ChannelReader.channel = channel;
 	}
 
 	@Override
