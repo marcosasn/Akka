@@ -58,6 +58,7 @@ public class Channel extends Base {
 				System.out.println("channel: input event received");
 				router = getContext().actorOf(new BroadcastGroup(paths).props(), "router");
 				router.tell(new Broadcast(new Channel.OutputEvent(valor)), getSelf());
+				paths.clear();
 				transition(getState(), message);
 			} else if (message instanceof OutputEvent) {
 				// syso(message.toString());
