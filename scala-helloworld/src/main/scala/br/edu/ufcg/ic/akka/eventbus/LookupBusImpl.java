@@ -1,14 +1,30 @@
 package br.edu.ufcg.ic.akka.eventbus;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
+import akka.actor.UntypedActor;
 import akka.event.japi.LookupEventBus;
 import br.edu.ufcg.ic.akka.eventbus.LookupBusImpl.MsgEnvelope;
+
+class AnyActor extends UntypedActor{
+
+	@Override
+	public void onReceive(Object arg0) throws Throwable {
+		System.out.println(arg0.toString());
+	}
+	
+}
+
 
 /***Publishes the payload of the MsgEnvelope when the topic of the MsgEnvelope equals
 the String specified when subscribing.*/
 public class LookupBusImpl extends LookupEventBus<MsgEnvelope, ActorRef, String> {
 	
-	public class MsgEnvelope {
+	public static class MsgEnvelope {
 		public final String topic;
 		public final Object payload;
 
@@ -45,11 +61,16 @@ public class LookupBusImpl extends LookupEventBus<MsgEnvelope, ActorRef, String>
 		return 128;
 	}
 	
-	public void main(String[] args){
+	public static void main(String[] args){
+		Config config = ConfigFactory.load();
+		final ActorSystem system = ActorSystem.create("MySystem", config.getConfig("akka.actor"));
+		final ActorRef anyactor = system.actorOf(Props.create(AnyActor.class),"anyactor");
+		
 		LookupBusImpl lookupBus = new LookupBusImpl();
-		//lookupBus.subscribe(getTestActor(), "greetings");
-		lookupBus.publish(new MsgEnvelope("time", System.currentTimeMillis()));
-		lookupBus.publish(new MsgEnvelope("greetings", "hello"));
+		lookupBus.subscribe(anyactor, "greetings");
+		lookupBus.publish(new LookupBusImpl.MsgEnvelope("time", System.currentTimeMillis()));
+		lookupBus.publish(new LookupBusImpl.MsgEnvelope("greetings", System.currentTimeMillis()));
+		lookupBus.publish(new LookupBusImpl.MsgEnvelope("greetings", "hello"));
 		//expectMsgEquals("hello");
 		//441
 	}
