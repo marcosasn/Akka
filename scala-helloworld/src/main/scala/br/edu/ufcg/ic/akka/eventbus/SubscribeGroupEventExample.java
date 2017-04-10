@@ -17,6 +17,10 @@ class Jazz implements AllKindsOfMusic {
 	public Jazz(String artist) {
 		this.artist = artist;
 	}
+	
+	public String toString(){
+		return "Jazz";
+	}
 }
 
 class Electronic implements AllKindsOfMusic {
@@ -24,6 +28,10 @@ class Electronic implements AllKindsOfMusic {
 
 	public Electronic(String artist) {
 		this.artist = artist;
+	}
+	
+	public String toString(){
+		return "Eletronic";
 	}
 }
 
@@ -39,7 +47,6 @@ class Listener extends UntypedActor {
 }
 
 public class SubscribeGroupEventExample {
-	
 	public static void main(String[] args) {
 		Config config = ConfigFactory.load();
 		final ActorSystem system = ActorSystem.create("system", config.getConfig("akka.actor"));
