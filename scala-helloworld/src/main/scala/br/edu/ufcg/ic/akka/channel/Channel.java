@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import akka.actor.ActorRef;
-import akka.actor.Props;
 import akka.routing.Broadcast;
 import akka.routing.BroadcastGroup;
-import akka.routing.BroadcastPool;
 
 public class Channel extends Base {
 

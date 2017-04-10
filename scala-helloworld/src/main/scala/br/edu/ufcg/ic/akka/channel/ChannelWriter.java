@@ -2,13 +2,7 @@ package br.edu.ufcg.ic.akka.channel;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import akka.actor.UntypedActor;
-import akka.event.Logging;
-import akka.event.LoggingAdapter;
 import akka.japi.Creator;
-import br.edu.ufcg.ic.akka.channel.Base.State;
-import br.edu.ufcg.ic.akka.channel.Channel.InputEvent;
-import br.edu.ufcg.ic.akka.channel.Channel.OutputEvent;
 
 public class ChannelWriter extends Base{
 	

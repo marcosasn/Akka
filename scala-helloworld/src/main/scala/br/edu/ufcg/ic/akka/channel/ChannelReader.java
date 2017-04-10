@@ -3,12 +3,7 @@ package br.edu.ufcg.ic.akka.channel;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.japi.Creator;
-import akka.pattern.Patterns;
-import akka.util.Timeout;
 import br.edu.ufcg.ic.akka.channel.Channel.OutputEvent;
-import scala.concurrent.Await;
-import scala.concurrent.Future;
-import scala.concurrent.duration.Duration;
 
 public class ChannelReader extends BaseOut {
 
