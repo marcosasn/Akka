@@ -42,7 +42,7 @@ public class DeadLetterActor extends UntypedActor {
 		ActorRef actor = system.actorOf(Props.create(DeadLetterActor.class), "actor");
 		System.out.println("Subscripting an actor in event stream from system... ");
 		
-		system.eventStream().subscribe(actor, DeadLetter.class);
+		system.eventStream().subscribe(actor, DeadLetter.class);		
 		system.eventStream().subscribe(actor, SuppressedDeadLetter.class);
 		system.eventStream().subscribe(actor, AllDeadLetters.class);
 		

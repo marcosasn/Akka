@@ -6,16 +6,23 @@ import com.typesafe.config.ConfigFactory;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import br.edu.ufcg.ic.akka.eventbus.Channel.Event;
-import br.edu.ufcg.ic.akka.eventbus.Channel.Input;
-import br.edu.ufcg.ic.akka.eventbus.Reader.Command;
 
 public class TestChanSync {
 
 	public static void main(String[] args) throws InterruptedException {
 		Config config = ConfigFactory.load();
 		ActorSystem system = ActorSystem.create("MySystem", config.getConfig("akka.actor"));
-        
+		
+		ScanningBusImpl scanningBus = new ScanningBusImpl();
+	
+		ActorRef p1 = system.actorOf(Props.create(ProcessCSP.class, scanningBus), "p1");
+		ActorRef p2 = system.actorOf(Props.create(ProcessCSP.class, scanningBus), "p2");
+		
+		scanningBus.subscribe(p1, 3);
+		scanningBus.subscribe(p2, 3);
+		scanningBus.publish("a");
+		
+		/*
         //cria channels, readers and writers
         ActorRef reader = system.actorOf(Props.create(Reader.class, system), "reader");
         ActorRef reader2 = system.actorOf(Props.create(Reader.class, system), "reader2");
@@ -40,5 +47,6 @@ public class TestChanSync {
         
         Thread.sleep(1000);
         system.terminate();
+        */
 	}
 }
