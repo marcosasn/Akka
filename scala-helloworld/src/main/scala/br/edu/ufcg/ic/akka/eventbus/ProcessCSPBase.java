@@ -3,7 +3,7 @@ package br.edu.ufcg.ic.akka.eventbus;
 import akka.actor.UntypedActor;
 
 public abstract class ProcessCSPBase extends UntypedActor {
-	protected enum State {
+	protected static enum State {
 		started, stop, skip;
 	}
 	
@@ -24,7 +24,7 @@ public abstract class ProcessCSPBase extends UntypedActor {
 		return state;
 	}
 
-	abstract protected void transition(State old, Object event);	
+	abstract protected void transition(State old, String event);	
 	
 	protected void syso(String msg){
 		System.out.println(msg);
