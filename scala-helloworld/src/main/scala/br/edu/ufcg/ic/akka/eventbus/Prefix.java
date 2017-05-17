@@ -73,7 +73,7 @@ public class Prefix extends UntypedActor {
 		Timeout timeout = new Timeout(Duration.create(5, "seconds"));
 		Future<Object> future = Patterns.ask(p1, new GetInterState(), timeout);
 		InterState result = (InterState) Await.result(future, timeout.duration());
-		if(result.getState() == ProcessCSPBase.State.stop){
+		/*if(result.getState() == ProcessCSPBase.State.stop){
 			p2.tell("a",getSelf());
 		} else {
 			timeout = new Timeout(Duration.create(5, "seconds"));
@@ -82,7 +82,7 @@ public class Prefix extends UntypedActor {
 			if(result.getState() == ProcessCSPBase.State.stop){
 				p1.tell("a",getSelf());
 			}
-		}
+		}*/
 	}
 
 	@Override

@@ -83,23 +83,23 @@ public class ProcessCSP extends ProcessCSPBase {
 					Timeout timeout = new Timeout(Duration.create(5, "seconds"));
 					Future<Object> future = Patterns.ask(pair, new GetInterState(), timeout);
 					InterState result = (InterState) Await.result(future, timeout.duration());
-					if(result.getState() == State.stop){
+					/*if(result.getState() == State.stop){
 						transition(getState(), "a");
 						syso(message.toString() + "-" + getSelf().path().name() + "-" + getState());
-					}
+					}*/
 				}
 			}
-		} else if (getState() == State.stop){
+		} /*else if (getState() == State.stop){
 			if(message instanceof GetInterState){
 				getSender().tell(new InterState(getState()), getSelf());
 			}
-		}
+		}*/
 	}
 
 	@Override
 	protected void transition(State old, String event) {
-		if (old == State.started && event.equals("a")) {
+		/*if (old == State.started && event.equals("a")) {
 			setState(State.stop);
-		}
+		}*/
 	}
 }

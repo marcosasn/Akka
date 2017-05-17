@@ -4,7 +4,7 @@ import akka.actor.UntypedActor;
 
 public abstract class ProcessCSPBase extends UntypedActor {
 	protected static enum State {
-		started, stop, skip;
+		started, deadlock, sucess, finished;
 	}
 	
 	private State state;
@@ -15,7 +15,6 @@ public abstract class ProcessCSPBase extends UntypedActor {
 
 	protected void setState(State s) {
 		if (state != s) {
-			//transition(state, s);
 			state = s;
 		}
 	}
