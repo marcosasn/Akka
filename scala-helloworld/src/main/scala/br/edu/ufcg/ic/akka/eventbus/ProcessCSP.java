@@ -1,8 +1,12 @@
 package br.edu.ufcg.ic.akka.eventbus;
 
+import java.util.List;
+
 import akka.actor.Props;
 import akka.japi.Creator;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Perform;
+import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.GetInitials;
+import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Initials;;
 
 public class ProcessCSP extends ProcessCSPBase {
 	
@@ -14,14 +18,39 @@ public class ProcessCSP extends ProcessCSPBase {
 	        	this.event = event;
 	        }
 	    }
+		
+		public static class Initials {
+			public List<String> events;
+			
+	        public Initials(List<String> events) {
+	        	this.events = events;
+	        }
+	    }
+		
+		public static class GetInterState {
+	        public GetInterState() {  }
+		}
+		
+		public static class InterState {
+			public State state;
+			
+	        public InterState(State state) {
+	        	this.state = state;
+	        }
+	        
+	        public State getState(){
+	        	return state;
+	        }
+		}
+		
+		public static class GetInitials {
+	        public GetInitials() {   }
+	    }
 	}
-	
-	private static ScanningBusImpl scanningBus;
-	
-	public ProcessCSP(ScanningBusImpl scanningBus) {
+		
+	public ProcessCSP() {
 		super();
 		super.initialize();
-		ProcessCSP.scanningBus = scanningBus;
 	}
 	
 	public static Props props() {
@@ -30,7 +59,7 @@ public class ProcessCSP extends ProcessCSPBase {
 
             @Override
             public ProcessCSP create() throws Exception {
-                return new ProcessCSP(scanningBus);
+                return new ProcessCSP();
             }
 
         });
@@ -42,6 +71,9 @@ public class ProcessCSP extends ProcessCSPBase {
 			if(message instanceof Perform) {
 				peform(((Perform)message).event);
 				
+			}
+			else if(message instanceof GetInitials){
+				getSender().tell(new Initials(getInitials()), getSelf());
 			}
 			else if(message instanceof String && ((String)message).equals("a")){
 				transition(getState(), ((String)message));

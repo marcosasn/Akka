@@ -6,6 +6,7 @@ import java.util.List;
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 import akka.japi.Procedure;
+import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.InterState;;
 
 public abstract class ProcessCSPBase extends UntypedActor {
 	protected static enum State {
@@ -13,7 +14,7 @@ public abstract class ProcessCSPBase extends UntypedActor {
 	}
 	
 	ActorRef requesterSkipRef;
-	List<String> initials;	
+	private List<String> initials;	
 	Procedure<Object> nextBehavior;
 	private State state;
 	
@@ -33,6 +34,7 @@ public abstract class ProcessCSPBase extends UntypedActor {
         public void apply(Object message) {
         	if(getState() == State.deadlock){
         		syso(getSelf().path().name().toString() + " is deadlock");
+        		getSender().tell(new InterState(getState()), getSelf());
         	}
         }
     };
@@ -40,6 +42,7 @@ public abstract class ProcessCSPBase extends UntypedActor {
 	protected void initialize() {
 		state = State.started;
 		initials = new ArrayList<String>();
+		initials.add("a");
 	}
 
 	protected void setState(State s) {
@@ -50,6 +53,10 @@ public abstract class ProcessCSPBase extends UntypedActor {
 
 	protected State getState() {
 		return state;
+	}
+	
+	protected List<String> getInitials() {
+		return initials;
 	}
 
 	protected void syso(String msg){
