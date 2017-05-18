@@ -9,10 +9,7 @@ import akka.actor.UntypedActor;
 import akka.japi.Creator;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
-import br.edu.ufcg.ic.akka.eventbus.Prefix.PrefixApi.Perform;
 import br.edu.ufcg.ic.akka.eventbus.Prefix.PrefixApi.Execute;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.GetInterState;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.InterState;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -20,9 +17,6 @@ import scala.concurrent.duration.Duration;
 public class Prefix extends UntypedActor {
 	
 	public interface PrefixApi {
-		public static class Perform {    
-	        public Perform() {}
-	    }
 		public static class Execute {    
 	        public Execute() {}
 	    }
@@ -70,9 +64,9 @@ public class Prefix extends UntypedActor {
 	}
 	
 	public void peform() throws Throwable{
-		Timeout timeout = new Timeout(Duration.create(5, "seconds"));
+		/*Timeout timeout = new Timeout(Duration.create(5, "seconds"));
 		Future<Object> future = Patterns.ask(p1, new GetInterState(), timeout);
-		InterState result = (InterState) Await.result(future, timeout.duration());
+		InterState result = (InterState) Await.result(future, timeout.duration());*/
 		/*if(result.getState() == ProcessCSPBase.State.stop){
 			p2.tell("a",getSelf());
 		} else {
@@ -87,7 +81,7 @@ public class Prefix extends UntypedActor {
 
 	@Override
 	public void onReceive(Object message) throws Throwable {
-		if(message instanceof Perform) {
+		/*if(message instanceof Perform) {
 			p1.tell(new ProcessCSP.ProcessCSPApi.Pair(p2), getSelf());
 			p2.tell(new ProcessCSP.ProcessCSPApi.Pair(p1), getSelf());
 			peform();
@@ -95,6 +89,6 @@ public class Prefix extends UntypedActor {
 		} else if (message instanceof Execute){
 			p1.tell("a", getSelf());
 			peform();
-		}
+		}*/
 	}
 }

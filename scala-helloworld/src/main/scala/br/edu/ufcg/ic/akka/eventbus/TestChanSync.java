@@ -15,22 +15,24 @@ public class TestChanSync {
 		/* Testando processos simples*/
 		ScanningBusImpl scanningBus = new ScanningBusImpl();
 	
-		/*ActorRef p1 = system.actorOf(Props.create(ProcessCSP.class, scanningBus), "p1");
+		ActorRef p1 = system.actorOf(Props.create(ProcessCSP.class, scanningBus), "p1");
 		ActorRef p2 = system.actorOf(Props.create(ProcessCSP.class, scanningBus), "p2");
 		
 		scanningBus.subscribe(p1, 3);
 		scanningBus.subscribe(p2, 3);
-		scanningBus.publish("a");*/
+		scanningBus.publish("a");
+		scanningBus.publish("a");
+		scanningBus.publish("a");
 		
 		/* Testando operador de prefixo*/
-		ActorRef p3 = system.actorOf(Props.create(ProcessCSP.class, scanningBus), "p3");
+		/*ActorRef p3 = system.actorOf(Props.create(ProcessCSP.class, scanningBus), "p3");
 		ActorRef p4 = system.actorOf(Props.create(ProcessCSP.class, scanningBus), "p4");
 		scanningBus.subscribe(p3, 3);
 		scanningBus.subscribe(p4, 3);
 		
 		ActorRef prefix = system.actorOf(Props.create(Prefix.class, scanningBus, p3, p4), "prefix"); 
 		prefix.tell(new Prefix.PrefixApi.Perform(), ActorRef.noSender());
-		prefix.tell(new Prefix.PrefixApi.Execute(), ActorRef.noSender());
+		prefix.tell(new Prefix.PrefixApi.Execute(), ActorRef.noSender());*/
 
 	}
 }
