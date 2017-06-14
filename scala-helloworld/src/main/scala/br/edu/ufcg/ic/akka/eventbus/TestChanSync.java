@@ -12,11 +12,12 @@ public class TestChanSync {
 	public static void main(String[] args) throws InterruptedException {
 		Config config = ConfigFactory.load();
 		ActorSystem system = ActorSystem.create("MySystem", config.getConfig("akka.actor"));
+		
 		/* Testando processos simples*/
 		ScanningBusImpl scanningBus = new ScanningBusImpl();
-	
-		/*ActorRef p1 = system.actorOf(Props.create(ProcessCSP.class), "p1");
-		ActorRef p2 = system.actorOf(Props.create(ProcessCSP.class), "p2");
+		String[] initials = new String[]{"a"};
+		ActorRef p1 = system.actorOf(Props.create(ProcessCSP.class, initials), "p1");
+		/*ActorRef p2 = system.actorOf(Props.create(ProcessCSP.class), "p2");
 		
 		scanningBus.subscribe(p1, 3);
 		scanningBus.subscribe(p2, 3);
@@ -24,9 +25,16 @@ public class TestChanSync {
 		scanningBus.publish("a");
 		scanningBus.publish("a");*/
 		
-		/* Testando operador de prefixo*/
-		ActorRef spc = system.actorOf(Props.create(SynchronousParallelComposition.class, scanningBus), "spc"); 
+		/* Testando operador de prefixo
+		 * p = a->STOP || a->STOP*/
+		/*ActorRef spc = system.actorOf(Props.create(SynchronousParallelComposition.class, scanningBus), "spc"); 
 		scanningBus.subscribe(spc, 3);
 		scanningBus.publish("a");
+		*/
+		/*p = a -> b -> SKIP || c -> STOP = isso deve ser igual a STOP*/
+		/*String[] initialsP1 = new String[]{"a","b"};
+		String[] initialsP2 = new String[]{"c"};
+		ActorRef spc2 = system.actorOf(Props.create(SynchronousParallelComposition.class, scanningBus), "spc2");
+		scanningBus.subscribe(spc, 3);*/
 	}
 }

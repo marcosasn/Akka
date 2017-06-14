@@ -1,10 +1,8 @@
 package br.edu.ufcg.ic.akka.eventbus;
 
-import java.util.List;
-
+import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Perform;
 import akka.actor.Props;
 import akka.japi.Creator;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Perform;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.GetInitials;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Initials;;
 
@@ -20,10 +18,10 @@ public class ProcessCSP extends ProcessCSPBase {
 	    }
 		
 		public static class Initials {
-			public List<String> events;
+			public String[] events;
 			
-	        public Initials(List<String> events) {
-	        	this.events = events;
+	        public Initials(String[] strings) {
+	        	this.events = strings;
 	        }
 	    }
 		
@@ -48,9 +46,9 @@ public class ProcessCSP extends ProcessCSPBase {
 	    }
 	}
 		
-	public ProcessCSP() {
+	public ProcessCSP(String[] initials) {
 		super();
-		super.initialize();
+		super.initialize(initials);
 	}
 	
 	public static Props props() {
@@ -59,7 +57,7 @@ public class ProcessCSP extends ProcessCSPBase {
 
             @Override
             public ProcessCSP create() throws Exception {
-                return new ProcessCSP();
+                return new ProcessCSP(initials);
             }
 
         });

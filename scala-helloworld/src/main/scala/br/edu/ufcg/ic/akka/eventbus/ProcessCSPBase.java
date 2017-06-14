@@ -1,8 +1,5 @@
 package br.edu.ufcg.ic.akka.eventbus;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 import akka.japi.Procedure;
@@ -14,7 +11,7 @@ public abstract class ProcessCSPBase extends UntypedActor {
 	}
 	
 	ActorRef requesterSkipRef;
-	private List<String> initials;	
+	static String[] initials;	
 	Procedure<Object> nextBehavior;
 	private State state;
 	
@@ -39,10 +36,9 @@ public abstract class ProcessCSPBase extends UntypedActor {
         }
     };
 	
-	protected void initialize() {
+	protected void initialize(String[] initials) {
 		state = State.started;
-		initials = new ArrayList<String>();
-		initials.add("a");
+		ProcessCSPBase.initials = initials;
 	}
 
 	protected void setState(State s) {
@@ -55,7 +51,7 @@ public abstract class ProcessCSPBase extends UntypedActor {
 		return state;
 	}
 	
-	protected List<String> getInitials() {
+	protected String[] getInitials() {
 		return initials;
 	}
 
@@ -66,5 +62,4 @@ public abstract class ProcessCSPBase extends UntypedActor {
 	abstract protected void transition(State old, String event);	
 	
 	abstract protected void peform(String event);	
-
 }

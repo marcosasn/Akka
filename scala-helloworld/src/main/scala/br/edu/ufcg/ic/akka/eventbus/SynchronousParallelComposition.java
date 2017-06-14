@@ -13,7 +13,7 @@ import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Perform;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.GetInterState;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.InterState;;
 
-public class SynchronousParallelComposition extends UntypedActor {
+public class SynchronousParallelComposition extends ProcessCSPBase {
 	
 	public interface PrefixApi {
 		public static class Execute {    
@@ -64,5 +64,16 @@ public class SynchronousParallelComposition extends UntypedActor {
 				
 			}
 		}
+	}
+
+	@Override
+	protected void transition(State old, String event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void peform(String event) {
+		getSelf().tell(event, getSelf());		
 	}
 }
