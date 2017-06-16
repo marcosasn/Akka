@@ -2,6 +2,7 @@ package br.edu.ufcg.ic.akka.eventbus;
 
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Perform;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import akka.actor.Props;
@@ -21,9 +22,9 @@ public class ProcessCSP extends ProcessCSPBase {
 	    }
 		
 		public static class Initials {
-			public List<String> events;
+			public LinkedList<String> events;
 			
-	        public Initials(List<String> list) {
+	        public Initials(LinkedList<String> list) {
 	        	this.events = list;
 	        }
 	    }
@@ -60,7 +61,7 @@ public class ProcessCSP extends ProcessCSPBase {
 
             @Override
             public ProcessCSP create() throws Exception {
-                return new ProcessCSP(initials);
+                return new ProcessCSP(getInitials());
             }
 
         });
@@ -70,16 +71,16 @@ public class ProcessCSP extends ProcessCSPBase {
 	public void onReceive(Object message) throws Throwable {
 		if(getState() == State.started){
 			if(message instanceof Perform) {
-				peform(((Perform)message).event);
+				super.peform(((Perform)message).event);
 				
 			}
 			else if(message instanceof GetInitials){
-				getSender().tell(new Initials(getInitials()), getSelf());
+				getSender().tell(new Initials(super.getInitials()), getSelf());
 			}
-			else if(message instanceof String && getInitials().getFirst().equals((String)message)){
+			else if(message instanceof String && isCurrenteEvent((String)message)){
 				transition(getState(), ((String)message));
 				syso(message.toString() + "-" + getSelf().path().name() + "-" + getState());
-				updateInitials();
+				super.updateInitials();
 			} 
 		}
 	}
@@ -87,13 +88,8 @@ public class ProcessCSP extends ProcessCSPBase {
 	@Override
 	protected void transition(State old, String event) {
 		if (old == State.started && event.equals("a")) {
-			setState(State.deadlock);
+			super.setState(State.deadlock);
 			getContext().become(super.deadlock);
 		}
-	}
-
-	@Override
-	protected void peform(String event) {
-		getSelf().tell(event, getSelf());
 	}
 }

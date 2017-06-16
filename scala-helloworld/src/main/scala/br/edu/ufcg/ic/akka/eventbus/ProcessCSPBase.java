@@ -14,9 +14,9 @@ public abstract class ProcessCSPBase extends UntypedActor {
 	}
 	
 	ActorRef requesterSkipRef;
-	static LinkedList<String> initials;
-	Procedure<Object> nextBehavior;
+	private static LinkedList<String> initials;
 	private State state;
+	Procedure<Object> nextBehavior;
 	
 	Procedure<Object> skip = new Procedure<Object>() {
         @Override
@@ -54,7 +54,7 @@ public abstract class ProcessCSPBase extends UntypedActor {
 		return state;
 	}
 	
-	protected LinkedList<String> getInitials() {
+	protected static LinkedList<String> getInitials() {
 		return initials;
 	}
 	
@@ -68,12 +68,18 @@ public abstract class ProcessCSPBase extends UntypedActor {
 	protected void updateInitials(){
 		initials.removeFirst();
 	}
+	
+	protected boolean isCurrenteEvent(String event){
+		return getInitials().getFirst().equals(event);
+	}
 
 	protected void syso(String msg){
 		System.out.println(msg);
 	}
+		
+	protected void peform(String event){
+		getSelf().tell(event, getSelf());
+	}	
 	
 	abstract protected void transition(State old, String event);	
-	
-	abstract protected void peform(String event);	
 }

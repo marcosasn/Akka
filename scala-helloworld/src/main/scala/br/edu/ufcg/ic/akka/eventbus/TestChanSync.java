@@ -18,7 +18,7 @@ public class TestChanSync {
 		
 		/* Testando processos simples*/
 		ScanningBusImpl scanningBus = new ScanningBusImpl();
-		List<String> initials = new ArrayList<String>();
+		/*List<String> initials = new ArrayList<String>();
 		initials.add("a");
 		ActorRef p1 = system.actorOf(Props.create(ProcessCSP.class, initials), "p1");
 		ActorRef p2 = system.actorOf(Props.create(ProcessCSP.class, initials), "p2");
@@ -27,14 +27,14 @@ public class TestChanSync {
 		scanningBus.subscribe(p2, 3);
 		scanningBus.publish("a");
 		scanningBus.publish("a");
-		scanningBus.publish("a");
+		scanningBus.publish("a");*/
 		
 		/* Testando operador de prefixo
-		 * p = a->STOP || a->STOP*/
-		/*ActorRef spc = system.actorOf(Props.create(SynchronousParallelComposition.class, scanningBus), "spc"); 
+		 * a->STOP || a->STOP*/
+		ActorRef spc = system.actorOf(Props.create(SynchronousParallelComposition.class, scanningBus), "spc"); 
 		scanningBus.subscribe(spc, 3);
 		scanningBus.publish("a");
-		*/
+		
 		/*p = a -> b -> SKIP || c -> STOP = isso deve ser igual a STOP*/
 		/*String[] initialsP1 = new String[]{"a","b"};
 		String[] initialsP2 = new String[]{"c"};

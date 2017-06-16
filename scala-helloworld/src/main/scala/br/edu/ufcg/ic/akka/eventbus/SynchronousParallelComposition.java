@@ -1,5 +1,8 @@
 package br.edu.ufcg.ic.akka.eventbus;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
@@ -11,69 +14,67 @@ import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Perform;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.GetInterState;
+import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Initials;
+import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.GetInitials;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.InterState;;
 
-public class SynchronousParallelComposition extends ProcessCSPBase {
-	
+public class SynchronousParallelComposition extends UntypedActor {
+
 	public interface PrefixApi {
-		public static class Execute {    
-	        public Execute() {}
-	    }
-	}
-
-	private static ScanningBusImpl scanningBus;
-	private ActorRef p1;
-	private ActorRef p2;
-
-	public SynchronousParallelComposition(ScanningBusImpl scanningBus) {
-		SynchronousParallelComposition.scanningBus = scanningBus;
-		
-		p1 = getContext().actorOf(Props.create(ProcessCSP.class), "p1");
-		p2 = getContext().actorOf(Props.create(ProcessCSP.class), "p2");
-	}
-	
-	public static Props props() {
-        return Props.create(new Creator<SynchronousParallelComposition>() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public SynchronousParallelComposition create() throws Exception {
-                return new SynchronousParallelComposition(scanningBus);
-            }
-
-        });
-    }
-
-	public static ScanningBusImpl getScanningBus() {
-		return scanningBus;
-	}
-
-	@Override
-	public void onReceive(Object message) throws Throwable {
-		if(message instanceof String && ((String)message).equals("a")){
-			p1.tell(new Perform((String)message), getSelf());
-			Timeout timeout = new Timeout(Duration.create(5, "seconds"));
-			Future<Object> future = Patterns.ask(p1, new GetInterState(), timeout);
-			InterState result = (InterState) Await.result(future, timeout.duration());
-			if(result.getState() == ProcessCSPBase.State.deadlock){
-				p2.tell(new Perform((String)message), getSelf());
-			
-				timeout = new Timeout(Duration.create(5, "seconds"));
-				future = Patterns.ask(p2, new GetInterState(), timeout);
-				result = (InterState) Await.result(future, timeout.duration());
-				
+		public static class Execute {
+			public Execute() {
 			}
 		}
 	}
 
-	@Override
-	protected void transition(State old, String event) {
-		// TODO Auto-generated method stub
-		
+	private static ScanningBusImpl scanningBus;
+	private ActorRef p3;
+	private ActorRef p4;
+
+	public SynchronousParallelComposition(ScanningBusImpl scanningBus) {
+		SynchronousParallelComposition.scanningBus = scanningBus;
+		List<String> initials = new ArrayList<String>();
+		initials.add("a");
+		p3 = getContext().actorOf(Props.create(ProcessCSP.class, initials), "p3");
+		p4 = getContext().actorOf(Props.create(ProcessCSP.class, initials), "p4");
+	}
+
+	public static Props props() {
+		return Props.create(new Creator<SynchronousParallelComposition>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public SynchronousParallelComposition create() throws Exception {
+				return new SynchronousParallelComposition(scanningBus);
+			}
+
+		});
 	}
 
 	@Override
-	protected void peform(String event) {
-		getSelf().tell(event, getSelf());		
+	public void onReceive(Object message) throws Throwable {
+		if (message instanceof String) {
+			Timeout timeout = new Timeout(Duration.create(5, "seconds"));
+			Future<Object> future = Patterns.ask(p3, new GetInitials(), timeout);
+			Initials r1 = (Initials) Await.result(future, timeout.duration());
+			
+			future = Patterns.ask(p4, new GetInitials(), timeout);
+			Initials r2 = (Initials) Await.result(future, timeout.duration());
+			
+			if (r1.events.getFirst().equals(r2.events.getFirst()) &&
+					r1.events.getFirst().equals((String)message)) {
+				
+				p3.tell(new Perform((String)message), getSelf());
+				timeout = new Timeout(Duration.create(5, "seconds"));
+				future = Patterns.ask(p3, new GetInterState(), timeout);
+				InterState result = (InterState) Await.result(future, timeout.duration());
+				if (result.getState() == ProcessCSPBase.State.deadlock) {
+					p4.tell(new Perform((String) message), getSelf());
+					timeout = new Timeout(Duration.create(5, "seconds"));
+					future = Patterns.ask(p4, new GetInterState(), timeout);
+					result = (InterState) Await.result(future, timeout.duration());
+				}
+			}
+		}
 	}
 }
