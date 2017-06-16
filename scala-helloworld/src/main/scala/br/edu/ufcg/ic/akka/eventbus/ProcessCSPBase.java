@@ -1,5 +1,8 @@
 package br.edu.ufcg.ic.akka.eventbus;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 import akka.japi.Procedure;
@@ -11,7 +14,7 @@ public abstract class ProcessCSPBase extends UntypedActor {
 	}
 	
 	ActorRef requesterSkipRef;
-	static String[] initials;	
+	static LinkedList<String> initials;
 	Procedure<Object> nextBehavior;
 	private State state;
 	
@@ -36,9 +39,9 @@ public abstract class ProcessCSPBase extends UntypedActor {
         }
     };
 	
-	protected void initialize(String[] initials) {
+	protected void initialize(List<String> initials) {
 		state = State.started;
-		ProcessCSPBase.initials = initials;
+		listToLinkedList(initials);
 	}
 
 	protected void setState(State s) {
@@ -51,8 +54,19 @@ public abstract class ProcessCSPBase extends UntypedActor {
 		return state;
 	}
 	
-	protected String[] getInitials() {
+	protected LinkedList<String> getInitials() {
 		return initials;
+	}
+	
+	protected void listToLinkedList(List<String> initials){
+		ProcessCSPBase.initials = new LinkedList<String>();
+		for(String s: initials){
+			ProcessCSPBase.initials.add(s);
+		}
+	}
+	
+	protected void updateInitials(){
+		initials.removeFirst();
 	}
 
 	protected void syso(String msg){

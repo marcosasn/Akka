@@ -1,5 +1,8 @@
 package br.edu.ufcg.ic.akka.eventbus;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -15,15 +18,16 @@ public class TestChanSync {
 		
 		/* Testando processos simples*/
 		ScanningBusImpl scanningBus = new ScanningBusImpl();
-		String[] initials = new String[]{"a"};
+		List<String> initials = new ArrayList<String>();
+		initials.add("a");
 		ActorRef p1 = system.actorOf(Props.create(ProcessCSP.class, initials), "p1");
-		/*ActorRef p2 = system.actorOf(Props.create(ProcessCSP.class), "p2");
+		ActorRef p2 = system.actorOf(Props.create(ProcessCSP.class, initials), "p2");
 		
 		scanningBus.subscribe(p1, 3);
 		scanningBus.subscribe(p2, 3);
 		scanningBus.publish("a");
 		scanningBus.publish("a");
-		scanningBus.publish("a");*/
+		scanningBus.publish("a");
 		
 		/* Testando operador de prefixo
 		 * p = a->STOP || a->STOP*/

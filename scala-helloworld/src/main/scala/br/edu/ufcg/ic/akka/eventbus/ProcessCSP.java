@@ -1,6 +1,9 @@
 package br.edu.ufcg.ic.akka.eventbus;
 
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Perform;
+
+import java.util.List;
+
 import akka.actor.Props;
 import akka.japi.Creator;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.GetInitials;
@@ -18,10 +21,10 @@ public class ProcessCSP extends ProcessCSPBase {
 	    }
 		
 		public static class Initials {
-			public String[] events;
+			public List<String> events;
 			
-	        public Initials(String[] strings) {
-	        	this.events = strings;
+	        public Initials(List<String> list) {
+	        	this.events = list;
 	        }
 	    }
 		
@@ -46,7 +49,7 @@ public class ProcessCSP extends ProcessCSPBase {
 	    }
 	}
 		
-	public ProcessCSP(String[] initials) {
+	public ProcessCSP(List<String> initials) {
 		super();
 		super.initialize(initials);
 	}
@@ -73,9 +76,10 @@ public class ProcessCSP extends ProcessCSPBase {
 			else if(message instanceof GetInitials){
 				getSender().tell(new Initials(getInitials()), getSelf());
 			}
-			else if(message instanceof String && ((String)message).equals("a")){
+			else if(message instanceof String && getInitials().getFirst().equals((String)message)){
 				transition(getState(), ((String)message));
 				syso(message.toString() + "-" + getSelf().path().name() + "-" + getState());
+				updateInitials();
 			} 
 		}
 	}
