@@ -28,18 +28,15 @@ public class TestChanSync {
 		skip.tell("tick", ActorRef.noSender());
 		skip.tell("hello2", ActorRef.noSender());
 		
-		/* Testando processos simples a->STOP*/
+		/* a->STOP*/
 		ScanningBusImpl scanningBus = new ScanningBusImpl();
-		/*List<String> initials = new ArrayList<String>();
+		List<String> initials = new ArrayList<String>();
 		initials.add("a");
 		ActorRef p1 = system.actorOf(Props.create(ProcessCSP.class, initials), "p1");
-		ActorRef p2 = system.actorOf(Props.create(ProcessCSP.class, initials), "p2");
 		
 		scanningBus.subscribe(p1, 3);
-		scanningBus.subscribe(p2, 3);
 		scanningBus.publish("a");
 		scanningBus.publish("a");
-		scanningBus.publish("a");*/
 		
 		/* Testando operador de prefixo
 		 * a->STOP || a->STOP*/

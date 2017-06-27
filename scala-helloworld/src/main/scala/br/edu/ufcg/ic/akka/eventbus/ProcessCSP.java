@@ -83,7 +83,7 @@ public class ProcessCSP extends ProcessCSPBase {
 			}
 			else if(message instanceof String && isCurrenteEvent((String)message)){
 				transition(getState(), ((String)message));
-				syso(message.toString() + "-" + getSelf().path().name() + "-" + getState());
+				syso(getSelf().path().name() + " got " + message.toString() + " state " + getState());
 				super.updateInitials();
 			} 
 		}
@@ -91,7 +91,7 @@ public class ProcessCSP extends ProcessCSPBase {
 
 	@Override
 	protected void transition(State old, String event) {
-		if (old == State.started && event.equals("a")) {
+		if (old == State.started && isCurrenteEvent(event)) {
 			super.setState(State.deadlock);
 			super.nextBehavior = super.deadlock;
 			getContext().become(super.nextBehavior);
