@@ -10,7 +10,7 @@ import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.InterState;;
 
 public abstract class ProcessCSPBase extends UntypedActor {
 	protected static enum State {
-		started, deadlock, sucess;
+		started, deadlock;
 	}
 	
 	ActorRef requesterSkipRef;
@@ -18,23 +18,12 @@ public abstract class ProcessCSPBase extends UntypedActor {
 	private State state;
 	Procedure<Object> nextBehavior;
 	
-	Procedure<Object> skip = new Procedure<Object>() {
-        @Override
-        public void apply(Object message) {
-        	if(getState() == State.sucess){
-        		requesterSkipRef.tell("Sucess", getSelf());
-        		setState(State.deadlock);
-        		getContext().become(deadlock);
-        	}
-        }
-    };
-	
     Procedure<Object> deadlock = new Procedure<Object>() {
         @Override
         public void apply(Object message) {
         	if(getState() == State.deadlock){
         		syso(getSelf().path().name().toString() + " is deadlock");
-        		getSender().tell(new InterState(getState()), getSelf());
+        		//getSender().tell(new InterState(getState()), getSelf());
         	}
         }
     };
@@ -54,10 +43,6 @@ public abstract class ProcessCSPBase extends UntypedActor {
 		return state;
 	}
 	
-	protected static LinkedList<String> getInitials() {
-		return initials;
-	}
-	
 	protected void listToLinkedList(List<String> initials){
 		ProcessCSPBase.initials = new LinkedList<String>();
 		for(String s: initials){
@@ -70,16 +55,24 @@ public abstract class ProcessCSPBase extends UntypedActor {
 	}
 	
 	protected boolean isCurrenteEvent(String event){
-		return getInitials().getFirst().equals(event);
+		return initials.getFirst().equals(event);
+	}
+	
+	protected void peform(String event){
+		getSelf().tell(event, getSelf());
+	}
+	
+	protected void execute() {		
+		this.peform(initials.getFirst());
 	}
 
+	protected static LinkedList<String> initials() {
+		return initials;
+	}
+	
+	abstract protected void transition(State old, String event);
+	
 	protected void syso(String msg){
 		System.out.println(msg);
 	}
-		
-	protected void peform(String event){
-		getSelf().tell(event, getSelf());
-	}	
-	
-	abstract protected void transition(State old, String event);	
 }

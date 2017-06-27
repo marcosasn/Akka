@@ -16,7 +16,19 @@ public class TestChanSync {
 		Config config = ConfigFactory.load();
 		ActorSystem system = ActorSystem.create("MySystem", config.getConfig("akka.actor"));
 		
-		/* Testando processos simples*/
+		/* STOP*/
+		ActorRef stop = system.actorOf(Props.create(Stop.class), "stop");
+		stop.tell("hello", ActorRef.noSender());
+		stop.tell("hello2", ActorRef.noSender());
+
+		
+		/* SKIP*/
+		ActorRef skip = system.actorOf(Props.create(Skip.class), "skip");
+		skip.tell("hello", ActorRef.noSender());
+		skip.tell("tick", ActorRef.noSender());
+		skip.tell("hello2", ActorRef.noSender());
+		
+		/* Testando processos simples a->STOP*/
 		ScanningBusImpl scanningBus = new ScanningBusImpl();
 		/*List<String> initials = new ArrayList<String>();
 		initials.add("a");
@@ -31,11 +43,11 @@ public class TestChanSync {
 		
 		/* Testando operador de prefixo
 		 * a->STOP || a->STOP*/
-		ActorRef spc = system.actorOf(Props.create(SynchronousParallelComposition.class, scanningBus), "spc"); 
+		/*ActorRef spc = system.actorOf(Props.create(SynchronousParallelComposition.class, scanningBus), "spc"); 
 		scanningBus.subscribe(spc, 3);
 		scanningBus.publish("a");
-		
-		/*p = a -> b -> SKIP || c -> STOP = isso deve ser igual a STOP*/
+		*/
+		/*a -> b -> SKIP || c -> STOP = isso deve ser igual a STOP*/
 		/*String[] initialsP1 = new String[]{"a","b"};
 		String[] initialsP2 = new String[]{"c"};
 		ActorRef spc2 = system.actorOf(Props.create(SynchronousParallelComposition.class, scanningBus), "spc2");

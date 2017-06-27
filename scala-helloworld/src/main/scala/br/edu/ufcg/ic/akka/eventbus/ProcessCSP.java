@@ -13,6 +13,10 @@ import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Initials;;
 public class ProcessCSP extends ProcessCSPBase {
 	
 	public interface ProcessCSPApi {
+		public static class Execute {
+	        public Execute() {}
+	    }
+		
 		public static class Perform {
 			public String event;
 			
@@ -61,7 +65,7 @@ public class ProcessCSP extends ProcessCSPBase {
 
             @Override
             public ProcessCSP create() throws Exception {
-                return new ProcessCSP(getInitials());
+                return new ProcessCSP(initials());
             }
 
         });
@@ -75,7 +79,7 @@ public class ProcessCSP extends ProcessCSPBase {
 				
 			}
 			else if(message instanceof GetInitials){
-				getSender().tell(new Initials(super.getInitials()), getSelf());
+				getSender().tell(new Initials(initials()), getSelf());
 			}
 			else if(message instanceof String && isCurrenteEvent((String)message)){
 				transition(getState(), ((String)message));
@@ -89,7 +93,8 @@ public class ProcessCSP extends ProcessCSPBase {
 	protected void transition(State old, String event) {
 		if (old == State.started && event.equals("a")) {
 			super.setState(State.deadlock);
-			getContext().become(super.deadlock);
+			super.nextBehavior = super.deadlock;
+			getContext().become(super.nextBehavior);
 		}
 	}
 }
