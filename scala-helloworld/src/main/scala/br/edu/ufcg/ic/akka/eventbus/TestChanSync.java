@@ -10,6 +10,8 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 
+import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Execute;
+
 public class TestChanSync {
 
 	public static void main(String[] args) throws InterruptedException {
@@ -20,6 +22,7 @@ public class TestChanSync {
 		ActorRef stop = system.actorOf(Props.create(Stop.class), "stop");
 		stop.tell("hello", ActorRef.noSender());
 		stop.tell("hello2", ActorRef.noSender());
+		stop.tell("hello3", ActorRef.noSender());
 
 		
 		/* SKIP*/
@@ -37,6 +40,10 @@ public class TestChanSync {
 		scanningBus.subscribe(p1, 3);
 		scanningBus.publish("a");
 		scanningBus.publish("a");
+		
+		ActorRef p2 = system.actorOf(Props.create(ProcessCSP.class, initials), "p2");
+		p2.tell(new Execute(), ActorRef.noSender());
+		p2.tell(new Execute(), ActorRef.noSender());
 		
 		/* Testando operador de prefixo
 		 * a->STOP || a->STOP*/

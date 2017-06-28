@@ -33,6 +33,7 @@ public class Skip extends ProcessCSPBase {
 		if(getState() == State.started){
 			transition(getState(), ((String)message));
 			syso(getSelf().path().name() + " got " + message.toString() + " state " + getState());
+			super.updateInitials();
 		}
 	}
 

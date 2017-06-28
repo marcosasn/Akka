@@ -51,7 +51,9 @@ public abstract class ProcessCSPBase extends UntypedActor {
 	}
 	
 	protected void updateInitials(){
-		initials.removeFirst();
+		if(!initials.isEmpty()){
+			initials.removeFirst();	
+		}
 	}
 	
 	protected boolean isCurrenteEvent(String event){

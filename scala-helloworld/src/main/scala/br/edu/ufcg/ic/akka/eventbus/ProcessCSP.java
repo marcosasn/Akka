@@ -1,6 +1,7 @@
 package br.edu.ufcg.ic.akka.eventbus;
 
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Perform;
+import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Execute;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -80,6 +81,9 @@ public class ProcessCSP extends ProcessCSPBase {
 			}
 			else if(message instanceof GetInitials){
 				getSender().tell(new Initials(initials()), getSelf());
+			}
+			else if (message instanceof Execute){
+				super.execute();
 			}
 			else if(message instanceof String && isCurrenteEvent((String)message)){
 				transition(getState(), ((String)message));
