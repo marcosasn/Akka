@@ -10,7 +10,7 @@ import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.InterState;;
 
 public abstract class ProcessCSPBase extends UntypedActor {
 	protected static enum State {
-		started, deadlock;
+		started, deadlock, executing;
 	}
 	
 	ActorRef requesterSkipRef;
@@ -22,7 +22,7 @@ public abstract class ProcessCSPBase extends UntypedActor {
         @Override
         public void apply(Object message) {
         	if(getState() == State.deadlock){
-        		syso(getSelf().path().name().toString() + " is deadlock");
+        		//syso(getSelf().path().name().toString() + " is deadlock");
         		//getSender().tell(new InterState(getState()), getSelf());
         	}
         }
@@ -57,15 +57,20 @@ public abstract class ProcessCSPBase extends UntypedActor {
 	}
 	
 	protected boolean isCurrenteEvent(String event){
-		return initials.getFirst().equals(event);
+		if(!initials.isEmpty()){
+			return initials.getFirst().equals(event);
+		}
+		return false;
 	}
 	
 	protected void peform(String event){
 		getSelf().tell(event, getSelf());
 	}
 	
-	protected void execute() {		
-		this.peform(initials.getFirst());
+	protected void execute() {
+		if(!initials.isEmpty()){
+			this.peform(initials.getFirst());	
+		}
 	}
 
 	protected static LinkedList<String> initials() {

@@ -43,7 +43,16 @@ public class TestChanSync {
 		
 		ActorRef p2 = system.actorOf(Props.create(ProcessCSP.class, initials), "p2");
 		p2.tell(new Execute(), ActorRef.noSender());
-		p2.tell(new Execute(), ActorRef.noSender());
+		//p2.tell(new Execute(), ActorRef.noSender());
+		
+		/* a->a->STOP*/
+		List<String> initials2 = new ArrayList<String>();
+		initials.add("a");
+		initials.add("a");
+		ActorRef p3 = system.actorOf(Props.create(ProcessCSP.class, initials2), "p3");
+		scanningBus.subscribe(p3, 3);
+		scanningBus.publish("a");
+		scanningBus.publish("a");
 		
 		/* Testando operador de prefixo
 		 * a->STOP || a->STOP*/
