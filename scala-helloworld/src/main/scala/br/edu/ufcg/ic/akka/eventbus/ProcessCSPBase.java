@@ -69,7 +69,7 @@ public abstract class ProcessCSPBase extends UntypedActor {
 	
 	protected void execute() {
 		if(!initials.isEmpty()){
-			this.peform(initials.getFirst());	
+			this.peform(initials.getFirst().toString());
 		}
 	}
 

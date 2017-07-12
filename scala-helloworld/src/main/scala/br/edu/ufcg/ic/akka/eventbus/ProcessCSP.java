@@ -79,7 +79,7 @@ public class ProcessCSP extends ProcessCSPBase {
 
 	@Override
 	public void onReceive(Object message) throws Throwable {
-		if (getState() == State.started) {
+		if (getState() == State.started || getState() == State.executing) {
 			if (message instanceof Perform) {
 				super.peform(((Perform) message).event);
 
@@ -87,9 +87,9 @@ public class ProcessCSP extends ProcessCSPBase {
 				getSender().tell(new Initials(initials()), getSelf());
 			} else if (message instanceof Execute) {
 				super.execute();
+				
 			} else if (message instanceof String && isCurrenteEvent((String) message)) {
 				transition(getState(), ((String) message));
-				syso(getSelf().path().name() + " got " + message.toString() + " state " + getState());
 			}
 		}
 	}
@@ -99,16 +99,20 @@ public class ProcessCSP extends ProcessCSPBase {
 		super.updateInitials();
 		if (old == State.started && !initials().isEmpty()) {
 			super.setState(State.executing);
+			syso(getSelf().path().name() + " got " + event + " state " + getState());
 
 		} else if (old == State.started && initials().isEmpty()){
 			super.setState(State.deadlock);
 			nextBehavior = super.deadlock;
+			syso(getSelf().path().name() + " got " + event + " state " + getState());
 			getContext().become(super.nextBehavior);
+			
 		} else if (old == State.executing && initials().isEmpty()) {
 			super.setState(State.deadlock);
 			nextBehavior = super.deadlock;
+			syso(getSelf().path().name() + " got " + event + " state " + getState());
 			getContext().become(super.nextBehavior);
-		}
 		
+		}
 	}
 }

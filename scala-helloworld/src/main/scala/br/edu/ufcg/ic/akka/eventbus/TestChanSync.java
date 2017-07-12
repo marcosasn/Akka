@@ -33,6 +33,7 @@ public class TestChanSync {
 		
 		/* a->STOP*/
 		ScanningBusImpl scanningBus = new ScanningBusImpl();
+		
 		List<String> initials = new ArrayList<String>();
 		initials.add("a");
 		ActorRef p1 = system.actorOf(Props.create(ProcessCSP.class, initials), "p1");
@@ -43,12 +44,12 @@ public class TestChanSync {
 		
 		ActorRef p2 = system.actorOf(Props.create(ProcessCSP.class, initials), "p2");
 		p2.tell(new Execute(), ActorRef.noSender());
-		//p2.tell(new Execute(), ActorRef.noSender());
+		p2.tell(new Execute(), ActorRef.noSender());
 		
 		/* a->a->STOP*/
 		List<String> initials2 = new ArrayList<String>();
-		initials.add("a");
-		initials.add("a");
+		initials2.add("a");
+		initials2.add("a");
 		ActorRef p3 = system.actorOf(Props.create(ProcessCSP.class, initials2), "p3");
 		scanningBus.subscribe(p3, 3);
 		scanningBus.publish("a");
@@ -58,8 +59,8 @@ public class TestChanSync {
 		 * a->STOP || a->STOP*/
 		/*ActorRef spc = system.actorOf(Props.create(SynchronousParallelComposition.class, scanningBus), "spc"); 
 		scanningBus.subscribe(spc, 3);
-		scanningBus.publish("a");
-		*/
+		scanningBus.publish("a");*/
+		
 		/*a -> b -> SKIP || c -> STOP = isso deve ser igual a STOP*/
 		/*String[] initialsP1 = new String[]{"a","b"};
 		String[] initialsP2 = new String[]{"c"};
