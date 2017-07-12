@@ -12,7 +12,6 @@ import akka.util.Timeout;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Perform;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.GetInterState;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Initials;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.GetInitials;
@@ -54,7 +53,7 @@ public class SynchronousParallelComposition extends UntypedActor {
 	@Override
 	public void onReceive(Object message) throws Throwable {
 		if (message instanceof String) {
-			Timeout timeout = new Timeout(Duration.create(5, "seconds"));
+			/*Timeout timeout = new Timeout(Duration.create(5, "seconds"));
 			Future<Object> future = Patterns.ask(p3, new GetInitials(), timeout);
 			Initials r1 = (Initials) Await.result(future, timeout.duration());
 			
@@ -74,7 +73,7 @@ public class SynchronousParallelComposition extends UntypedActor {
 					future = Patterns.ask(p4, new GetInterState(), timeout);
 					result = (InterState) Await.result(future, timeout.duration());
 				}
-			}
+			}*/
 		}
 	}
 }

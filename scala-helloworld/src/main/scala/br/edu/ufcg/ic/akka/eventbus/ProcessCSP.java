@@ -1,10 +1,10 @@
 package br.edu.ufcg.ic.akka.eventbus;
 
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Perform;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSPBase.State;
+import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.SetBehavior;
+import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.AddInitial;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Execute;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import akka.actor.Props;
@@ -14,6 +14,9 @@ import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.GetInitials;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Initials;;
 
 public class ProcessCSP extends ProcessCSPBase {
+	
+	Procedure<Object> nextBehavior;
+	private List<String> inits;
 
 	public interface ProcessCSPApi {
 		public static class Execute {
@@ -21,18 +24,18 @@ public class ProcessCSP extends ProcessCSPBase {
 			}
 		}
 
-		public static class Perform {
+		public static class AddInitial {
 			public String event;
 
-			public Perform(String event) {
+			public AddInitial(String event) {
 				this.event = event;
 			}
 		}
 
 		public static class Initials {
-			public LinkedList<String> events;
+			public List<String> events;
 
-			public Initials(LinkedList<String> list) {
+			public Initials(List<String> list) {
 				this.events = list;
 			}
 		}
@@ -53,6 +56,18 @@ public class ProcessCSP extends ProcessCSPBase {
 				return state;
 			}
 		}
+		
+		public static class SetBehavior {
+			public Procedure<Object> prc;
+
+			public SetBehavior(Procedure<Object> prc) {
+				this.prc = prc;
+			}
+
+			public Procedure<Object> getBehavior() {
+				return prc;
+			}
+		}
 
 		public static class GetInitials {
 			public GetInitials() {
@@ -60,9 +75,10 @@ public class ProcessCSP extends ProcessCSPBase {
 		}
 	}
 
-	public ProcessCSP(List<String> initials) {
+	public ProcessCSP() {
 		super();
-		super.initialize(initials);
+		super.initialize();
+		inits = new ArrayList<String>();
 	}
 
 	public static Props props() {
@@ -71,7 +87,7 @@ public class ProcessCSP extends ProcessCSPBase {
 
 			@Override
 			public ProcessCSP create() throws Exception {
-				return new ProcessCSP(initials());
+				return new ProcessCSP();
 			}
 
 		});
@@ -79,40 +95,56 @@ public class ProcessCSP extends ProcessCSPBase {
 
 	@Override
 	public void onReceive(Object message) throws Throwable {
-		if (getState() == State.started || getState() == State.executing) {
-			if (message instanceof Perform) {
-				super.peform(((Perform) message).event);
+		if (getState() == State.started) {
+			if (message instanceof AddInitial) {
+				inits.add(((AddInitial)message).event);
 
 			} else if (message instanceof GetInitials) {
-				getSender().tell(new Initials(initials()), getSelf());
+				getSender().tell(new Initials(inits), getSelf());
 			} else if (message instanceof Execute) {
-				super.execute();
+				execute();
+				
+			} else if (message instanceof SetBehavior){
+				nextBehavior = ((SetBehavior)message).getBehavior();
 				
 			} else if (message instanceof String && isCurrenteEvent((String) message)) {
-				transition(getState(), ((String) message));
+				if(nextBehavior != null){
+					syso(getSelf().path().name() + " got " + ((String) message) + " state deadlock");
+					getContext().become(nextBehavior);
+				}
 			}
 		}
 	}
 
 	@Override
 	protected void transition(State old, String event) {
-		super.updateInitials();
-		if (old == State.started && !initials().isEmpty()) {
+		/*if (old == State.started && !initials().isEmpty()) {
 			super.setState(State.executing);
-			syso(getSelf().path().name() + " got " + event + " state " + getState());
 
 		} else if (old == State.started && initials().isEmpty()){
 			super.setState(State.deadlock);
-			nextBehavior = super.deadlock;
-			syso(getSelf().path().name() + " got " + event + " state " + getState());
-			getContext().become(super.nextBehavior);
 			
 		} else if (old == State.executing && initials().isEmpty()) {
 			super.setState(State.deadlock);
-			nextBehavior = super.deadlock;
-			syso(getSelf().path().name() + " got " + event + " state " + getState());
-			getContext().become(super.nextBehavior);
-		
+			
+		}*/
+	}
+	
+	@Override
+	protected List<String> initials() {
+		return inits;
+	}
+	
+	private boolean isCurrenteEvent(String message) {
+		if(!inits.isEmpty()){
+			return inits.get(0).equals(message);
+		}
+		return false;
+	}
+	
+	private void execute() {
+		if(!inits.isEmpty()){
+			super.peform(inits.get(0));
 		}
 	}
 }

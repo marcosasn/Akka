@@ -7,13 +7,10 @@ import akka.actor.Props;
 import akka.japi.Creator;
 
 public class Skip extends ProcessCSPBase {
-		
+	
 	public Skip() {
 		super();
-		
-		List<String> in = new ArrayList<String>();
-		in.add("tick");
-		super.initialize(in);
+		super.initialize();
 	}
 	
 	public static Props props() {
@@ -31,9 +28,9 @@ public class Skip extends ProcessCSPBase {
 	@Override
 	public void onReceive(Object message) throws Throwable {
 		if(getState() == State.started){
-			transition(getState(), ((String)message));
-			syso(getSelf().path().name() + " got " + message.toString() + " state " + getState());
-			super.updateInitials();
+			if (message instanceof String){
+				transition(getState(), ((String)message));
+			}
 		}
 	}
 
@@ -41,8 +38,15 @@ public class Skip extends ProcessCSPBase {
 	protected void transition(State old, String event) {
 		if (old == State.started && event.equals("tick")) {
 			super.setState(State.deadlock);
-			super.nextBehavior = super.deadlock;
-			getContext().become(super.nextBehavior);
+			syso(getSelf().path().name() + " got " + event + " state " + getState());
+			getContext().become(super.deadlock);
 		}
+	}
+	
+	@Override
+	protected List<String> initials() {
+		List<String> inits = new ArrayList<String>();
+		inits.add("tick");
+		return inits;
 	}
 }

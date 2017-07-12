@@ -1,6 +1,7 @@
 package br.edu.ufcg.ic.akka.eventbus;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import akka.actor.Props;
 import akka.japi.Creator;
@@ -9,7 +10,7 @@ public class Stop extends ProcessCSPBase {
 		
 	public Stop() {
 		super();
-		super.initialize(new ArrayList<String>());
+		super.initialize();
 	}
 	
 	public static Props props() {
@@ -28,7 +29,6 @@ public class Stop extends ProcessCSPBase {
 	public void onReceive(Object message) throws Throwable {
 		if(getState() == State.started){
 			transition(getState(), ((String)message));
-			syso(getSelf().path().name() + " got " + message.toString() + " state " + getState());
 		}
 	}
 
@@ -36,8 +36,13 @@ public class Stop extends ProcessCSPBase {
 	protected void transition(State old, String event) {
 		if (old == State.started) {
 			super.setState(State.deadlock);
-			super.nextBehavior = super.deadlock;
-			getContext().become(super.nextBehavior);
+			syso(getSelf().path().name() + " got " + event + " state " + getState());
+			getContext().become(super.deadlock);
 		}
+	}
+
+	@Override
+	protected List<String> initials() {
+		return new ArrayList<String>();
 	}
 }
