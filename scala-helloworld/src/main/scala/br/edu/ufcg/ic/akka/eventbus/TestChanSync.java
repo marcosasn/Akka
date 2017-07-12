@@ -9,6 +9,8 @@ import akka.actor.Props;
 import akka.japi.Procedure;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.AddInitial;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.SetBehavior;
+import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Execute;
+
 
 public class TestChanSync {
 
@@ -46,9 +48,18 @@ public class TestChanSync {
 		scanningBus.publish("a");
 		scanningBus.publish("a");
 
-		/*ActorRef p2 = system.actorOf(Props.create(ProcessCSP.class), "p2");
+		/* a->STOP */
+		ActorRef p2 = system.actorOf(Props.create(ProcessCSP.class), "p2");
+		p2.tell(new AddInitial(initial), ActorRef.noSender());
+		p2.tell(new SetBehavior(
+				new Procedure<Object>() {
+					@Override
+					public void apply(Object message) {
+						System.out.println("deadlock......");
+					}
+										}), ActorRef.noSender());
 		p2.tell(new Execute(), ActorRef.noSender());
-		p2.tell(new Execute(), ActorRef.noSender());*/
+		p2.tell(new Execute(), ActorRef.noSender());
 
 		/* a->(a->(STOP)) */
 		/*List<String> initials2 = new ArrayList<String>();
