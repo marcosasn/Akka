@@ -17,6 +17,7 @@ public class TestChanSync {
 	public static void main(String[] args) throws InterruptedException {
 		Config config = ConfigFactory.load();
 		ActorSystem system = ActorSystem.create("MySystem", config.getConfig("akka.actor"));
+		TypedBus typedbus = new TypedBus<String>();
 
 		/* STOP */
 		ActorRef stop = system.actorOf(Props.create(Stop.class), "stop");
@@ -27,12 +28,11 @@ public class TestChanSync {
 		/* SKIP */
 		ActorRef skip = system.actorOf(Props.create(Skip.class), "skip");
 		skip.tell("hello", ActorRef.noSender());
-		skip.tell("tick", ActorRef.noSender());
+		skip.tell(new Tick(), ActorRef.noSender());
 		skip.tell("hello2", ActorRef.noSender());
 
 		/* a->STOP */
-		ScanningBusImpl scanningBus = new ScanningBusImpl();
-		String initial = "a";
+		Event initial = new TypedEvent<String>("a");
 		ActorRef p1 = system.actorOf(Props.create(ProcessCSP.class), "p1");
 		p1.tell(new AddInitial(initial), ActorRef.noSender());
 		p1.tell(new SetBehavior(
@@ -43,10 +43,9 @@ public class TestChanSync {
 					}
 										}), ActorRef.noSender());
 
-		scanningBus.subscribe(p1, 3);
-
-		scanningBus.publish("a");
-		scanningBus.publish("a");
+		typedbus.subscribe(p1);
+		typedbus.publish(initial);
+		typedbus.publish(initial);
 
 		/* a->STOP */
 		ActorRef p2 = system.actorOf(Props.create(ProcessCSP.class), "p2");

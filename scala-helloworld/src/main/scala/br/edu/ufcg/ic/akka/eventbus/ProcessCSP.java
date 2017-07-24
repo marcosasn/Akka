@@ -16,7 +16,7 @@ import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Initials;;
 public class ProcessCSP extends ProcessCSPBase {
 	
 	Procedure<Object> nextBehavior;
-	private List<String> inits;
+	private List<Event> inits;
 
 	public interface ProcessCSPApi {
 		public static class Execute {
@@ -25,17 +25,17 @@ public class ProcessCSP extends ProcessCSPBase {
 		}
 
 		public static class AddInitial {
-			public String event;
+			public Event event;
 
-			public AddInitial(String event) {
+			public AddInitial(Event event) {
 				this.event = event;
 			}
 		}
 
 		public static class Initials {
-			public List<String> events;
+			public List<Event> events;
 
-			public Initials(List<String> list) {
+			public Initials(List<Event> list) {
 				this.events = list;
 			}
 		}
@@ -78,7 +78,7 @@ public class ProcessCSP extends ProcessCSPBase {
 	public ProcessCSP() {
 		super();
 		super.initialize();
-		inits = new ArrayList<String>();
+		inits = new ArrayList<Event>();
 	}
 
 	public static Props props() {
@@ -117,7 +117,7 @@ public class ProcessCSP extends ProcessCSPBase {
 	}
 
 	@Override
-	protected void transition(State old, String event) {
+	protected void transition(State old, Object event) {
 		/*if (old == State.started && !initials().isEmpty()) {
 			super.setState(State.executing);
 
@@ -131,7 +131,7 @@ public class ProcessCSP extends ProcessCSPBase {
 	}
 	
 	@Override
-	protected List<String> initials() {
+	protected List<Event> initials() {
 		return inits;
 	}
 	

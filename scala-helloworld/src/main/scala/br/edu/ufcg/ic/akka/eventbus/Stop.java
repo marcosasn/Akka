@@ -33,7 +33,7 @@ public class Stop extends ProcessCSPBase {
 	}
 
 	@Override
-	protected void transition(State old, String event) {
+	protected void transition(State old, Object event) {
 		if (old == State.started) {
 			super.setState(State.deadlock);
 			syso(getSelf().path().name() + " got " + event + " state " + getState());
@@ -42,7 +42,7 @@ public class Stop extends ProcessCSPBase {
 	}
 
 	@Override
-	protected List<String> initials() {
-		return new ArrayList<String>();
+	protected List<Event> initials() {
+		return new ArrayList<Event>();
 	}
 }

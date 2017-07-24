@@ -1,6 +1,5 @@
 package br.edu.ufcg.ic.akka.eventbus;
 
-import akka.actor.FSM.Event;
 import scala.collection.mutable.Subscriber;
 import scala.concurrent.duration.DurationConversions.Classifier;
 

@@ -33,13 +33,13 @@ public abstract class ProcessCSPBase extends UntypedActor {
 		return state;
 	}
 	
-	protected void peform(String event){
+	protected void peform(Event event){
 		getSelf().tell(event, getSelf());
 	}
 	
-	protected abstract List<String> initials() ;
+	protected abstract List<Event> initials() ;
 		
-	abstract protected void transition(State old, String event);
+	abstract protected void transition(State old, Object event);
 	
 	protected void syso(String msg){
 		System.out.println(msg);
