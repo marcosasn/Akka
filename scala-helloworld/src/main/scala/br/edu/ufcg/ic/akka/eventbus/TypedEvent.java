@@ -2,14 +2,14 @@ package br.edu.ufcg.ic.akka.eventbus;
 
 public class TypedEvent<S> implements Event {
 	
-	private S value;
+	private S msg;
 	
-	public TypedEvent(S value){
-		this.value = value;
+	public TypedEvent(S msg){
+		this.msg = msg;
 	}
 	
-	public S getValor() {
-		return value;
+	public S getMessage() {
+		return msg;
 	}
 
 }

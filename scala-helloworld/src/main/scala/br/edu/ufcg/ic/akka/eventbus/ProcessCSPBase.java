@@ -39,7 +39,7 @@ public abstract class ProcessCSPBase extends UntypedActor {
 	
 	protected abstract List<Event> initials() ;
 		
-	abstract protected void transition(State old, Object event);
+	abstract protected void transition(State old, Event event);
 	
 	protected void syso(String msg){
 		System.out.println(msg);

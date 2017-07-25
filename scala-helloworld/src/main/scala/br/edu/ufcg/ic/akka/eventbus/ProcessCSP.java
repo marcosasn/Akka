@@ -117,7 +117,7 @@ public class ProcessCSP extends ProcessCSPBase {
 	}
 
 	@Override
-	protected void transition(State old, Object event) {
+	protected void transition(State old, Event event) {
 		/*if (old == State.started && !initials().isEmpty()) {
 			super.setState(State.executing);
 

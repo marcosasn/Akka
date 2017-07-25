@@ -17,19 +17,17 @@ public class TestChanSync {
 	public static void main(String[] args) throws InterruptedException {
 		Config config = ConfigFactory.load();
 		ActorSystem system = ActorSystem.create("MySystem", config.getConfig("akka.actor"));
-		TypedBus typedbus = new TypedBus<String>();
 
 		/* STOP */
 		ActorRef stop = system.actorOf(Props.create(Stop.class), "stop");
-		stop.tell("hello", ActorRef.noSender());
-		stop.tell("hello2", ActorRef.noSender());
-		stop.tell("hello3", ActorRef.noSender());
-
 		/* SKIP */
 		ActorRef skip = system.actorOf(Props.create(Skip.class), "skip");
-		skip.tell("hello", ActorRef.noSender());
-		skip.tell(new Tick(), ActorRef.noSender());
-		skip.tell("hello2", ActorRef.noSender());
+		system.eventStream().subscribe(stop, Event.class);
+		system.eventStream().subscribe(skip, Event.class);
+		
+		Event ev = new TypedEvent<String>("hello");
+		system.eventStream().publish(ev);
+		system.eventStream().publish(new Tick());
 
 		/* a->STOP */
 		Event initial = new TypedEvent<String>("a");
@@ -43,9 +41,9 @@ public class TestChanSync {
 					}
 										}), ActorRef.noSender());
 
-		typedbus.subscribe(p1);
-		typedbus.publish(initial);
-		typedbus.publish(initial);
+		/*system.eventStream().subscribe(p1, Event.class);
+		system.eventStream().publish(initial);*/
+
 
 		/* a->STOP */
 		ActorRef p2 = system.actorOf(Props.create(ProcessCSP.class), "p2");
@@ -57,8 +55,8 @@ public class TestChanSync {
 						System.out.println("deadlock......");
 					}
 										}), ActorRef.noSender());
-		p2.tell(new Execute(), ActorRef.noSender());
-		p2.tell(new Execute(), ActorRef.noSender());
+		/*p2.tell(new Execute(), ActorRef.noSender());
+		p2.tell(new Execute(), ActorRef.noSender());*/
 
 		/* a->(a->(STOP)) */
 		/*List<String> initials2 = new ArrayList<String>();

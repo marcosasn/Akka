@@ -33,18 +33,21 @@ public class Skip extends ProcessCSPBase {
 	public void onReceive(Object message) throws Throwable {
 		if(getState() == State.started){
 			if (message instanceof Event){
-				transition(getState(), message);
+				transition(getState(), (Event)message);
 			}
 		}
 	}
 
 	@Override
-	protected void transition(State old, Object event) {
-		if (old == State.started && ((Tick)event).equals(new Tick())) {
-			super.setState(State.deadlock);
-			syso(getSelf().path().name() + " got " + event.toString() + " state " + getState());
-			getContext().become(super.deadlock);
-		}
+	protected void transition(State old, Event event) {
+		if (old == State.started)
+			if (event instanceof Tick){
+				if (((Tick)event).equals(new Tick())) {
+					super.setState(State.deadlock);
+					syso(getSelf().path().name() + " got " + ((Tick)event).toString() + " state " + getState());
+					getContext().become(super.deadlock);
+				}
+			}
 	}
 	
 	@Override
