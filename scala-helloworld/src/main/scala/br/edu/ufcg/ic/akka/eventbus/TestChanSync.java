@@ -30,8 +30,8 @@ public class TestChanSync {
 		system.eventStream().publish(new Tick());
 
 		/* a->STOP */
-		Event initial = new TypedEvent<String>("a");
 		ActorRef p1 = system.actorOf(Props.create(ProcessCSP.class), "p1");
+		Event initial = new TypedEvent<String>("a");
 		p1.tell(new AddInitial(initial), ActorRef.noSender());
 		p1.tell(new SetBehavior(
 				new Procedure<Object>() {
@@ -41,8 +41,8 @@ public class TestChanSync {
 					}
 										}), ActorRef.noSender());
 
-		/*system.eventStream().subscribe(p1, Event.class);
-		system.eventStream().publish(initial);*/
+		system.eventStream().subscribe(p1, Event.class);
+		system.eventStream().publish(initial);
 
 
 		/* a->STOP */
@@ -55,8 +55,7 @@ public class TestChanSync {
 						System.out.println("deadlock......");
 					}
 										}), ActorRef.noSender());
-		/*p2.tell(new Execute(), ActorRef.noSender());
-		p2.tell(new Execute(), ActorRef.noSender());*/
+		p2.tell(new Execute(), ActorRef.noSender());
 
 		/* a->(a->(STOP)) */
 		/*List<String> initials2 = new ArrayList<String>();

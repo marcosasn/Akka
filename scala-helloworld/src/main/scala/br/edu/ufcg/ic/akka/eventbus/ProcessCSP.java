@@ -1,6 +1,7 @@
 package br.edu.ufcg.ic.akka.eventbus;
 
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.SetBehavior;
+import br.edu.ufcg.ic.akka.eventbus.ProcessCSPBase.State;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.AddInitial;
 import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Execute;
 
@@ -107,27 +108,30 @@ public class ProcessCSP extends ProcessCSPBase {
 			} else if (message instanceof SetBehavior){
 				nextBehavior = ((SetBehavior)message).getBehavior();
 				
-			} else if (message instanceof String && isCurrenteEvent((String) message)) {
-				if(nextBehavior != null){
-					syso(getSelf().path().name() + " got " + ((String) message) + " state deadlock");
-					getContext().become(nextBehavior);
-				}
+			} else if (message instanceof Event) {
+				transition(getState(), (Event)message);
 			}
 		}
 	}
 
 	@Override
 	protected void transition(State old, Event event) {
-		/*if (old == State.started && !initials().isEmpty()) {
-			super.setState(State.executing);
+		if (old == State.started) {
+			if (event instanceof TypedEvent) {
+				if(nextBehavior != null && !nextBehavior.equals(super.deadlock)){
+					super.setState(State.executing);
+					syso(getSelf().path().name() + " got " + ((TypedEvent)event).getMessage() + " state " + getState());
+					getContext().become(nextBehavior);
+				} else {
+					super.setState(State.deadlock);
+					syso(getSelf().path().name() + " got " + ((TypedEvent)event).getMessage() + " state deadlock");
+					getContext().become(super.deadlock);
+				}
 
-		} else if (old == State.started && initials().isEmpty()){
-			super.setState(State.deadlock);
-			
-		} else if (old == State.executing && initials().isEmpty()) {
-			super.setState(State.deadlock);
-			
-		}*/
+			} else if (event instanceof UntypedEvent) {
+
+			}
+		}
 	}
 	
 	@Override
