@@ -1,4 +1,4 @@
-package br.edu.ufcg.ic.akka.eventbus;
+package br.edu.ufcg.ic.akka.csp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +12,12 @@ import akka.util.Timeout;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.GetInterState;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Initials;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.GetInitials;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.InterState;;
+import br.edu.ufcg.ic.akka.csp.process.ProcessCSP;
+import br.edu.ufcg.ic.akka.csp.process.ProcessCSP.ProcessCSPApi.GetInitials;
+import br.edu.ufcg.ic.akka.csp.process.ProcessCSP.ProcessCSPApi.GetInterState;
+import br.edu.ufcg.ic.akka.csp.process.ProcessCSP.ProcessCSPApi.Initials;
+import br.edu.ufcg.ic.akka.csp.process.ProcessCSP.ProcessCSPApi.InterState;
+import br.edu.ufcg.ic.akka.eventbus.bus.ScanningBusImpl;;
 
 public class SynchronousParallelComposition extends UntypedActor {
 

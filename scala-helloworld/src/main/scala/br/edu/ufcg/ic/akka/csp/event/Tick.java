@@ -1,4 +1,4 @@
-package br.edu.ufcg.ic.akka.eventbus;
+package br.edu.ufcg.ic.akka.csp.event;
 
 public class Tick implements Event {
 	private String value;

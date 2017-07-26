@@ -1,4 +1,4 @@
-package br.edu.ufcg.ic.akka.eventbus;
+package br.edu.ufcg.ic.akka.eventbus.bus;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;

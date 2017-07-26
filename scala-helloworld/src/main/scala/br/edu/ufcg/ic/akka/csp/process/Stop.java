@@ -1,11 +1,14 @@
-package br.edu.ufcg.ic.akka.eventbus;
+package br.edu.ufcg.ic.akka.csp.process;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import akka.actor.Props;
 import akka.japi.Creator;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSPBase.State;
+import br.edu.ufcg.ic.akka.csp.event.Event;
+import br.edu.ufcg.ic.akka.csp.event.TypedEvent;
+import br.edu.ufcg.ic.akka.csp.event.UntypedEvent;
+import br.edu.ufcg.ic.akka.csp.process.ProcessCSPBase.State;
 
 public class Stop extends ProcessCSPBase {
 

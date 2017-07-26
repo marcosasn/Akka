@@ -1,9 +1,4 @@
-package br.edu.ufcg.ic.akka.eventbus;
-
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.SetBehavior;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSPBase.State;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.AddInitial;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Execute;
+package br.edu.ufcg.ic.akka.csp.process;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +6,15 @@ import java.util.List;
 import akka.actor.Props;
 import akka.japi.Creator;
 import akka.japi.Procedure;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.GetInitials;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Initials;;
+import br.edu.ufcg.ic.akka.csp.event.Event;
+import br.edu.ufcg.ic.akka.csp.event.TypedEvent;
+import br.edu.ufcg.ic.akka.csp.event.UntypedEvent;
+import br.edu.ufcg.ic.akka.csp.process.ProcessCSP.ProcessCSPApi.AddInitial;
+import br.edu.ufcg.ic.akka.csp.process.ProcessCSP.ProcessCSPApi.Execute;
+import br.edu.ufcg.ic.akka.csp.process.ProcessCSP.ProcessCSPApi.GetInitials;
+import br.edu.ufcg.ic.akka.csp.process.ProcessCSP.ProcessCSPApi.Initials;
+import br.edu.ufcg.ic.akka.csp.process.ProcessCSP.ProcessCSPApi.SetBehavior;
+import br.edu.ufcg.ic.akka.csp.process.ProcessCSPBase.State;;
 
 public class ProcessCSP extends ProcessCSPBase {
 	

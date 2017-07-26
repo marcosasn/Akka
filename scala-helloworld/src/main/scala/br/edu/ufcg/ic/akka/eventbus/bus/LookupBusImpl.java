@@ -1,4 +1,4 @@
-package br.edu.ufcg.ic.akka.eventbus;
+package br.edu.ufcg.ic.akka.eventbus.bus;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -8,7 +8,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.japi.LookupEventBus;
-import br.edu.ufcg.ic.akka.eventbus.LookupBusImpl.MsgEnvelope;
+import br.edu.ufcg.ic.akka.eventbus.bus.LookupBusImpl.MsgEnvelope;
 
 class AnyActor extends UntypedActor{
 

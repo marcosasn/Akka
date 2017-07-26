@@ -1,9 +1,10 @@
-package br.edu.ufcg.ic.akka.eventbus;
+package br.edu.ufcg.ic.akka.csp.process;
 
 import java.util.List;
 
 import akka.actor.UntypedActor;
 import akka.japi.Procedure;
+import br.edu.ufcg.ic.akka.csp.event.Event;
 
 public abstract class ProcessCSPBase extends UntypedActor {
 	protected static enum State {

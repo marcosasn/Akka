@@ -1,5 +1,6 @@
-package br.edu.ufcg.ic.akka.eventbus;
+package br.edu.ufcg.ic.akka.eventbus.bus;
 
+import br.edu.ufcg.ic.akka.csp.event.Event;
 import scala.collection.mutable.Subscriber;
 import scala.concurrent.duration.DurationConversions.Classifier;
 

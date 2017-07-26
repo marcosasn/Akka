@@ -1,4 +1,4 @@
-package br.edu.ufcg.ic.akka.eventbus;
+package br.edu.ufcg.ic.akka.csp;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -7,12 +7,18 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.japi.Procedure;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.AddInitial;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.SetBehavior;
-import br.edu.ufcg.ic.akka.eventbus.ProcessCSP.ProcessCSPApi.Execute;
+import br.edu.ufcg.ic.akka.csp.event.Event;
+import br.edu.ufcg.ic.akka.csp.event.Tick;
+import br.edu.ufcg.ic.akka.csp.event.TypedEvent;
+import br.edu.ufcg.ic.akka.csp.process.ProcessCSP;
+import br.edu.ufcg.ic.akka.csp.process.Skip;
+import br.edu.ufcg.ic.akka.csp.process.Stop;
+import br.edu.ufcg.ic.akka.csp.process.ProcessCSP.ProcessCSPApi.AddInitial;
+import br.edu.ufcg.ic.akka.csp.process.ProcessCSP.ProcessCSPApi.Execute;
+import br.edu.ufcg.ic.akka.csp.process.ProcessCSP.ProcessCSPApi.SetBehavior;
 
 
-public class TestChanSync {
+public class TestCspTasks {
 
 	public static void main(String[] args) throws InterruptedException {
 		Config config = ConfigFactory.load();

@@ -1,4 +1,4 @@
-package br.edu.ufcg.ic.akka.eventbus;
+package br.edu.ufcg.ic.akka.eventbus.bus;
 
 import java.util.concurrent.TimeUnit;
 
@@ -9,7 +9,7 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.event.japi.ManagedActorEventBus;
 import akka.testkit.JavaTestKit;
-import br.edu.ufcg.ic.akka.eventbus.ActorBusImpl.Notification;
+import br.edu.ufcg.ic.akka.eventbus.bus.ActorBusImpl.Notification;
 import scala.concurrent.duration.FiniteDuration;
 
 public class ActorBusImpl extends ManagedActorEventBus<Notification> {
